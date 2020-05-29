@@ -1,5 +1,7 @@
 #include <ge/time/frame-timer.hpp>
 
+#include <thread>
+
 namespace ge::time {
 
 FrameTimer::FrameTimer(int fps)

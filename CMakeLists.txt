@@ -6,16 +6,21 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+include(Ge)
 
-add_subdirectory(src)
+if(MSVC)
+    add_compile_options(/W4 /WX)
+else()
+    add_compile_options(-Wall -Wextra -pedantic)
+endif()
 
-add_library(ge INTERFACE)
-add_dependencies(
-    ge
-    PUBLIC
-        error
-        math
-        renderer
-        time
-        ui
-)
+option(FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only). Useful for ninja build." FALSE)
+if(${FORCE_COLORED_OUTPUT})
+    add_compile_options(
+      $<$<CXX_COMPILER_ID:GNU>:-fdiagnostics-color=always>
+      $<$<CXX_COMPILER_ID:Clang>:-fcolor-diagnostics>
+    )
+endif()
+
+add_subdirectory(examples)
+add_subdirectory(modules)

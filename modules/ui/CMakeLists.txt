@@ -1,4 +1,4 @@
 ge_library(
-    NAME ui
     DEPENDS renderer
+    HEADER_ONLY
 )
