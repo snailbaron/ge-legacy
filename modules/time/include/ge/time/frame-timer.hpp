@@ -2,19 +2,19 @@
 
 #include <chrono>
 
-namespace ge::time {
+namespace ge {
 
 class FrameTimer {
 public:
     explicit FrameTimer(int fps);
-    float delta() const;
+    double delta() const;
     int operator()();
     void relax();
 
 private:
     using Clock = std::chrono::high_resolution_clock;
 
-    const float _delta;
+    const double _delta;
     const Clock::duration _frameDuration;
     Clock::time_point _lastFrame;
     Clock::time_point _currentTime;

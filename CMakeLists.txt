@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(gap)
+project(ge)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
@@ -22,5 +22,7 @@ if(${FORCE_COLORED_OUTPUT})
     )
 endif()
 
+add_subdirectory(deps)
 add_subdirectory(examples)
 add_subdirectory(modules)
+add_subdirectory(tools)

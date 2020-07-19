@@ -1,6 +1,6 @@
 #pragma once
 
-namespace ge::time {
+namespace ge {
 
 class Metronome {
 public:

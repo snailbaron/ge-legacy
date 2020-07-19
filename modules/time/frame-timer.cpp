@@ -2,17 +2,17 @@
 
 #include <thread>
 
-namespace ge::time {
+namespace ge {
 
 FrameTimer::FrameTimer(int fps)
     : _delta(1.f / fps)
     , _frameDuration(std::chrono::duration_cast<Clock::duration>(
-        std::chrono::duration<float>(_delta)))
+        std::chrono::duration<double>(_delta)))
     , _lastFrame(Clock::now())
     , _currentTime(_lastFrame)
 { }
 
-float FrameTimer::delta() const
+double FrameTimer::delta() const
 {
     return _delta;
 }

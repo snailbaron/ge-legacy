@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace ge::time {
+namespace ge {
 
 Metronome Metronome::atFps(int fps)
 {

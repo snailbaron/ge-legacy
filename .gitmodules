@@ -1,0 +1,12 @@
+[submodule "deps/Lyra"]
+	path = deps/Lyra
+	url = https://github.com/bfgroup/Lyra.git
+[submodule "deps/json"]
+	path = deps/json
+	url = https://github.com/nlohmann/json.git
+[submodule "deps/aseprite"]
+	path = deps/aseprite
+	url = https://github.com/aseprite/aseprite.git
+[submodule "deps/SFML"]
+	path = deps/SFML
+	url = https://github.com/SFML/SFML.git
