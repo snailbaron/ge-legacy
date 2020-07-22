@@ -20,6 +20,8 @@
         }                                                       \
     } while (false)
 
+namespace ge {
+
 class Exception : public std::exception {
 public:
     template <class T>
@@ -39,3 +41,5 @@ public:
 private:
     std::string _string;
 };
+
+} // namespace

@@ -3,7 +3,7 @@ include(GeMessages)
 macro(ge_library)
     set(options HEADER_ONLY)
     set(one_value_args "")
-    set(multi_value_args DEPENDS SOURCES)
+    set(multi_value_args DEPENDS FLATBUFFERS SOURCES)
     cmake_parse_arguments(
         GE_LIBRARY
             "${options}"
@@ -44,4 +44,36 @@ macro(ge_library)
         ge_error("'${GE_LIBRARY_NAME}' library must either have SOURCES or be HEADER_ONLY")
     endif()
 
+    if(GE_LIBRARY_FLATBUFFERS)
+        foreach(path ${GE_LIBRARY_FLATBUFFERS})
+            set(full_path "${CMAKE_CURRENT_SOURCE_DIR}/${path}")
+
+            get_filename_component(name_base ${path} NAME_WLE)
+            set(gen_name "${name_base}_generated.h")
+
+            add_custom_command(
+                COMMENT "generate header from ${full_path}"
+                OUTPUT
+                    "${CMAKE_CURRENT_BINARY_DIR}/generated/${gen_name}"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/${gen_name}"
+                COMMAND
+                    $<TARGET_FILE:flatc>
+                        --cpp
+                        -o "${CMAKE_CURRENT_BINARY_DIR}/generated/"
+                        ${full_path}
+                COMMAND
+                    ${CMAKE_COMMAND} -E create_symlink
+                        "${CMAKE_CURRENT_BINARY_DIR}/generated/${gen_name}"
+                        "${CMAKE_CURRENT_SOURCE_DIR}/${gen_name}"
+                DEPENDS ${full_path}
+            )
+            add_custom_target(
+                "flatc_${name_base}"
+                DEPENDS
+                    "${CMAKE_CURRENT_BINARY_DIR}/generated/${gen_name}"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/${gen_name}"
+            )
+            add_dependencies(${GE_LIBRARY_NAME} "flatc_${name_base}")
+        endforeach()
+    endif()
 endmacro()

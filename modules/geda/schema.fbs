@@ -1,0 +1,34 @@
+file_identifier "GERE";
+file_extension "ge";
+
+namespace ge.schema;
+
+table Frame {
+  x:uint32;
+  y:uint32;
+  w:uint32;
+  h:uint32;
+  time:double;
+}
+
+table Sprite {
+  name:string;
+  frames:[Frame];
+}
+
+table Graphics {
+  sheet:[ubyte];
+  sprites:[Sprite];
+}
+
+table Font {
+  name:string;
+  data:[ubyte];
+}
+
+table Data {
+  graphics:Graphics;
+  fonts:[Font];
+}
+
+root_type Data;

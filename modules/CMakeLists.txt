@@ -1,9 +1,11 @@
 set(GE_MODULES
     error
+    geda
     math
     renderer
     time
     ui
+    util
 )
 
 foreach(module ${GE_MODULES})

@@ -3,4 +3,3 @@ ge_library(
         frame-timer.cpp
         metronome.cpp
 )
-

@@ -7,4 +7,5 @@ add_subdirectory(aseprite)
 
 add_subdirectory(Lyra)
 add_subdirectory(SFML)
+add_subdirectory(flatbuffers)
 add_subdirectory(json)

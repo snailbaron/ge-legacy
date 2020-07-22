@@ -1,1 +1,1 @@
-add_subdirectory(pack-aseprite)
+add_subdirectory(ge)
