@@ -3,31 +3,25 @@ file_extension "ge";
 
 namespace ge.schema;
 
-table Frame {
+struct Frame {
   x:uint32;
   y:uint32;
   w:uint32;
   h:uint32;
-  time:double;
 }
 
 table Sprite {
-  name:string;
+  frame_ms:uint32;
   frames:[Frame];
 }
 
-table Graphics {
-  sheet:[ubyte];
-  sprites:[Sprite];
-}
-
 table Font {
-  name:string;
-  data:[ubyte];
+  bytes:[uint8];
 }
 
-table Data {
-  graphics:Graphics;
+table Resources {
+  sheet:[uint8];
+  sprites:[Sprite];
   fonts:[Font];
 }
 

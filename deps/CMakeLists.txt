@@ -5,7 +5,6 @@ set(ENABLE_UPDATER OFF CACHE BOOL "")
 set(WITH_WEBP_SUPPORT OFF CACHE BOOL "")
 add_subdirectory(aseprite)
 
-add_subdirectory(Lyra)
 add_subdirectory(SFML)
 add_subdirectory(flatbuffers)
 add_subdirectory(json)

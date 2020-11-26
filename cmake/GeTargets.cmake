@@ -1,9 +1,55 @@
 include(GeMessages)
 
+macro(ge_resource_library)
+    set(options "")
+    set(one_value_args NAME)
+    set(multi_value_args "")
+    cmake_parse_arguments(
+        GE_RESOURCE_LIBRARY
+            "${options}"
+            "${one_value_args}"
+            "${multi_value_args}"
+            ${ARGN})
+
+    file(RELATIVE_PATH relative_path ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+
+    set(args "")
+    set(paths "")
+    while(ARGN)
+        list(POP_FRONT ARGN type)
+        list(POP_FRONT ARGN path)
+        list(POP_FRONT ARGN name)
+
+        if(type STREQUAL "PNG")
+            list(APPEND args --png "${path}" "${name}")
+        elseif(type STREQUAL "TTF")
+            list(APPEND args --ttf "${path}" "${name}")
+        else()
+            ge_error("unknown resource type: ${type}")
+        endif()
+        list(APPEND paths "${path}")
+    endwhile()
+
+    add_custom_command(
+        COMMENT "generate resource library ${GE_RESOURCE_LIBRARY_NAME} at ${relative_path}"
+        OUTPUT
+            "${CMAKE_CURRENT_BINARY_DIR}/resources.hpp"
+            "${CMAKE_CURRENT_BINARY_DIR}/data.ge"
+        COMMAND $<TARGET_FILE:pack-resources> ${args}
+        DEPENDS ${paths}
+    )
+    add_custom_target(
+        ${GE_RESOURCE_LIBRARY_NAME}
+        DEPENDS
+            "${CMAKE_CURRENT_BINARY_DIR}/resources.hpp"
+            "${CMAKE_CURRENT_BINARY_DIR}/data.ge"
+    )
+endmacro()
+
 macro(ge_library)
     set(options HEADER_ONLY)
     set(one_value_args "")
-    set(multi_value_args DEPENDS FLATBUFFERS SOURCES)
+    set(multi_value_args DEPENDS FLATBUFFERS RESOURCES SOURCES)
     cmake_parse_arguments(
         GE_LIBRARY
             "${options}"
@@ -76,4 +122,19 @@ macro(ge_library)
             add_dependencies(${GE_LIBRARY_NAME} "flatc_${name_base}")
         endforeach()
     endif()
+endmacro()
+
+macro(ge_program)
+    set(options "")
+    set(one_value_args NAME)
+    set(multi_value_args SOURCES)
+    cmake_parse_arguments(
+        GE_PROGRAM
+            "${options}"
+            "${one_value_args}"
+            "${multi_value_args}"
+            ${ARGN})
+
+    add_executable(${GE_PROGRAM_NAME} ${GE_PROGRAM_SOURCES})
+    target_link_libraries(${GE_PROGRAM_NAME} PRIVATE ge)
 endmacro()

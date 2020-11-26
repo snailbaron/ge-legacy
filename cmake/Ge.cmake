@@ -1,3 +1,2 @@
-include(GeLibrary)
 include(GeMessages)
-include(GeProgram)
+include(GeTargets)

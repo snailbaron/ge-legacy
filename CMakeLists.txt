@@ -24,5 +24,5 @@ endif()
 
 add_subdirectory(deps)
 add_subdirectory(examples)
-add_subdirectory(modules)
+add_subdirectory(lib)
 add_subdirectory(tools)

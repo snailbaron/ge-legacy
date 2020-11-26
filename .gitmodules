@@ -7,9 +7,6 @@
 [submodule "deps/aseprite"]
 	path = deps/aseprite
 	url = https://github.com/aseprite/aseprite.git
-[submodule "deps/Lyra"]
-	path = deps/Lyra
-	url = https://github.com/bfgroup/Lyra.git
 [submodule "deps/flatbuffers"]
 	path = deps/flatbuffers
 	url = https://github.com/google/flatbuffers.git

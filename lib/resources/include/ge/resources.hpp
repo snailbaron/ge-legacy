@@ -27,4 +27,7 @@ private:
     std::vector<std::filesystem::path> _ttfPaths;
 };
 
+class Resources {
+};
+
 } // namespace ge
