@@ -1,4 +1,5 @@
-ge_program(
+ge_target(
+    PROGRAM
     SOURCES
         main.cpp
 )

@@ -1,4 +1,4 @@
-ge_library(
+ge_target(
     SOURCES
         util.cpp
 )

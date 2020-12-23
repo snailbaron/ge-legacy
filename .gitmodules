@@ -10,3 +10,9 @@
 [submodule "deps/flatbuffers"]
 	path = deps/flatbuffers
 	url = https://github.com/google/flatbuffers.git
+[submodule "deps/arg"]
+	path = deps/arg
+	url = git@github.com:snailbaron/arg.git
+[submodule "deps/Catch2"]
+	path = deps/Catch2
+	url = https://github.com/catchorg/Catch2.git

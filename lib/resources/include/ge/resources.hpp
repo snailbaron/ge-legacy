@@ -1,15 +1,11 @@
 #pragma once
 
+#include "schema_generated.h"
+
 #include <filesystem>
 #include <vector>
 
 namespace ge {
-
-enum class ResourceType {
-    ASEPRITE,
-    PNG,
-    TTF,
-};
 
 class ResourcePacker {
 public:
@@ -27,7 +23,40 @@ private:
     std::vector<std::filesystem::path> _ttfPaths;
 };
 
-class Resources {
+
+class SpriteId {
+public:
+    SpriteId(size_t id) _id(id) { }
+    explicit operator size_t() { return _id; }
+
+private:
+    size_t _id;
 };
+
+class FontId {
+};
+
+class Sprite {
+public:
+    void animation(AnimationId animationId);
+    void update(double delta);
+
+private:
+    void setFrame(size_t frameIndex);
+
+    sf::Sprite _sprite;
+    Metronome _metronome;
+    schema::Animation* _animation = nullptr;
+    size_t _frameIndex = 0;
+};
+
+class Font {
+private:
+    sf::Font _font;
+};
+
+void preloadResources();
+Sprite load(SpriteId spriteId);
+Font load(FontId fontId);
 
 } // namespace ge

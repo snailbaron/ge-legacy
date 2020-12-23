@@ -10,7 +10,7 @@ struct Frame {
   h:uint32;
 }
 
-table Sprite {
+table Animation {
   frame_ms:uint32;
   frames:[Frame];
 }
@@ -21,8 +21,8 @@ table Font {
 
 table Resources {
   sheet:[uint8];
-  sprites:[Sprite];
+  animations:[Animation];
   fonts:[Font];
 }
 
-root_type Data;
+root_type Resources;

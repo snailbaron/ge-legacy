@@ -1,16 +1,11 @@
-ge_resource_library(
-    NAME resources
-    PNG data/grass.png Grass
-)
-
-ge_program(
+ge_target(
+    PROGRAM
     NAME rendering
+
+    RESOURCES
+        PNG data/tree.png Tree
+        TTF data/OpenSans-Regular.ttf OpenSans
 
     SOURCES
         main.cpp
-
-    RESOURCES
-        PNG data/grass.png Grass
-        PNG data/tree.png Tree
-        TTF data/OpenSans-Regular.ttf OpenSans
 )
