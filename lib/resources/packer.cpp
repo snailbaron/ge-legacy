@@ -1,3 +1,4 @@
+/*
 #include <ge/packer.hpp>
 
 #include "schema_generated.h"
@@ -96,3 +97,4 @@ void ResourcePacker::pack(
 }
 
 } // namespace ge
+*/

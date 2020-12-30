@@ -1,9 +1,12 @@
 ge_target(
     PROGRAM
-    NAME rendering
+
+    DEPENDS
+        ge
 
     RESOURCES
-        PNG data/tree.png Tree
+        PNG data/rock.png Rock
+        PNG data/ship.png Ship FRAMES 2
         TTF data/OpenSans-Regular.ttf OpenSans
 
     SOURCES

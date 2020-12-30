@@ -1,4 +1,5 @@
-#include "ge/resources.hpp"
+#include "ge/resources/data.hpp"
+#include "schema_generated.h"
 
 #include <fstream>
 
@@ -7,6 +8,13 @@ namespace fs = std::filesystem;
 namespace ge {
 
 namespace {
+
+ge::Sprite Resources::load(SpriteId spriteId) const
+{
+    auto animation = _root->animations(spriteId);
+}
+
+
 
 class ResourceHolder {
 public:

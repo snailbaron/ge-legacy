@@ -1,7 +1,8 @@
 set(GE_LIBS
+    client
     error
+    imp
     math
-    render
     resources
     time
     ui

@@ -5,14 +5,14 @@
 #include <stdexcept>
 #include <string>
 
-#define UTIL_ASSERT(CONDITION)                                              \
+#define GE_ASSERT(CONDITION)                                                \
     do {                                                                    \
         if (!(CONDITION)) {                                                 \
             throw std::runtime_error("ASSERT failed: '" #CONDITION "'");    \
         }                                                                   \
     } while (false)
 
-#define UTIL_ASSERT_MESSAGE(CONDITION, MESSAGE)                 \
+#define GE_ASSERT_MESSAGE(CONDITION, MESSAGE)                   \
     do {                                                        \
         if (!(CONDITION)) {                                     \
             throw std::runtime_error(                           \

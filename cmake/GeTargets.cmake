@@ -70,37 +70,43 @@ macro(ge_target)
             get_filename_component(name_base ${path} NAME_WLE)
             set(target_name "flatc_${name_base}")
             set(header_name "${name_base}_generated.h")
-            set(header_path "${CMAKE_CURRENT_BINARY_DIR}/${header_name}")
-            set(header_symlink_path "${CMAKE_CURRENT_SOURCE_DIR}/${header_name}")
+            set(generated_headers_dir "${CMAKE_CURRENT_BINARY_DIR}/generated_flatbuffers")
+            set(header_path "${generated_headers_dir}/${header_name}")
 
             if(TARGET ${target_name})
                 get_target_property(dir ${target_name} SOURCE_DIR)
                 ge_error("ge target '${target_name}' already exists at '${dir}', rename '${path}'")
             endif()
 
+            file(RELATIVE_PATH relative_source_fb_path ${CMAKE_SOURCE_DIR} ${source_fb_path})
+            file(RELATIVE_PATH relative_header_path ${CMAKE_SOURCE_DIR} ${header_path})
+
             add_custom_command(
-                COMMENT "generate header from ${source_fb_path}"
-                OUTPUT ${header_path} ${header_symlink_path}
+                COMMENT "generate header from ${relative_source_fb_path}: ${relative_header_path}"
+                OUTPUT ${header_path}
                 DEPENDS ${source_fb_path}
                 COMMAND
                     $<TARGET_FILE:flatc>
                         --cpp
-                        -o "${CMAKE_CURRENT_BINARY_DIR}/"
+                        -o "${generated_headers_dir}/"
                         ${source_fb_path}
-                COMMAND
-                    ${CMAKE_COMMAND} -E create_symlink
-                        "${CMAKE_CURRENT_BINARY_DIR}/${header_name}"
-                        "${CMAKE_CURRENT_SOURCE_DIR}/${header_name}"
             )
             add_custom_target(
                 ${target_name}
-                DEPENDS ${header_path} ${header_symlink_path}
+                DEPENDS ${header_path}
             )
+
+            if(GE_TARGET_HEADER_ONLY)
+                target_include_directories(${GE_TARGET_NAME} INTERFACE ${generated_headers_dir})
+            else()
+                target_include_directories(${GE_TARGET_NAME} PUBLIC ${generated_headers_dir})
+            endif()
             add_dependencies(${GE_TARGET_NAME} ${target_name})
         endforeach()
     endif()
 endmacro()
 
+# This is mostly just an idea, have never tried it.
 macro(ge_resource_library)
     set(options "")
     set(one_value_args NAME)

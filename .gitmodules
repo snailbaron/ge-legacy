@@ -4,15 +4,12 @@
 [submodule "deps/SFML"]
 	path = deps/SFML
 	url = https://github.com/SFML/SFML.git
-[submodule "deps/aseprite"]
-	path = deps/aseprite
-	url = https://github.com/aseprite/aseprite.git
-[submodule "deps/flatbuffers"]
-	path = deps/flatbuffers
-	url = https://github.com/google/flatbuffers.git
 [submodule "deps/arg"]
 	path = deps/arg
 	url = git@github.com:snailbaron/arg.git
 [submodule "deps/Catch2"]
 	path = deps/Catch2
 	url = https://github.com/catchorg/Catch2.git
+[submodule "deps/flatbuffers"]
+	path = deps/flatbuffers
+	url = https://github.com/google/flatbuffers.git

@@ -23,6 +23,10 @@ if(${FORCE_COLORED_OUTPUT})
 endif()
 
 add_subdirectory(deps)
+
+if(NOT MSVC)
+    add_compile_options(-Werror)
+endif()
 add_subdirectory(examples)
 add_subdirectory(lib)
 add_subdirectory(tools)

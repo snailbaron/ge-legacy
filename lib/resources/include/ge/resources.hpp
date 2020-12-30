@@ -2,61 +2,48 @@
 
 #include "schema_generated.h"
 
+#include <array>
+#include <cstddef>
 #include <filesystem>
-#include <vector>
+#include <span>
 
 namespace ge {
 
-class ResourcePacker {
+/*
+class Resources {
 public:
-    ResourcePacker& add(
-        const std::filesystem::path& resourceFilePath,
-        ResourceType resourceType);
-    ResourcePacker& add(const std::filesystem::path& resourceFilePath);
+    Resources(const std::filesystem::path& resourceFilePath);
 
-    void pack(
-        const std::filesystem::path& targetPath,
-        const std::filesystem::path& asepritePath);
+    ge::Sprite load(SpriteId spriteId) const;
+    ge::Font load(FontId fontId) const;
 
 private:
-    std::vector<std::filesystem::path> _pngPaths;
-    std::vector<std::filesystem::path> _ttfPaths;
+    ReadOnlyFileMap _data;
+    ge::schema::Resources* _root = nullptr;
 };
 
 
-class SpriteId {
+
+
+class DataPacker {
 public:
-    SpriteId(size_t id) _id(id) { }
-    explicit operator size_t() { return _id; }
+    void addFont(const std::filesystem::path& fontFilePath);
+    void addPng(const std::filesystem::path& pngFilePath, int frameCount);
+    void writeToFile(const std::filesystem::path& outputFilePath);
 
 private:
-    size_t _id;
 };
 
-class FontId {
-};
-
-class Sprite {
+class DataReader {
 public:
-    void animation(AnimationId animationId);
-    void update(double delta);
+    DataReader(const std::filesystem::path& resourceFilePath);
 
+    std::span<std::byte> sheet() const;
+
+    size_t fontCount() const;
+    std::span<std::byte> font(size_t i) const;
 private:
-    void setFrame(size_t frameIndex);
-
-    sf::Sprite _sprite;
-    Metronome _metronome;
-    schema::Animation* _animation = nullptr;
-    size_t _frameIndex = 0;
 };
-
-class Font {
-private:
-    sf::Font _font;
-};
-
-void preloadResources();
-Sprite load(SpriteId spriteId);
-Font load(FontId fontId);
+*/
 
 } // namespace ge
