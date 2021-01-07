@@ -14,19 +14,22 @@ else()
     add_compile_options(-Wall -Wextra -pedantic)
 endif()
 
-option(FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only). Useful for ninja build." FALSE)
-if(${FORCE_COLORED_OUTPUT})
-    add_compile_options(
-      $<$<CXX_COMPILER_ID:GNU>:-fdiagnostics-color=always>
-      $<$<CXX_COMPILER_ID:Clang>:-fcolor-diagnostics>
-    )
-endif()
-
 add_subdirectory(deps)
 
 if(NOT MSVC)
     add_compile_options(-Werror)
 endif()
+
+set(GE_CPPCHECK "" CACHE STRING "Value of CMAKE_CXX_CPPCHECK to set before building ge")
+if(GE_CPPCHECK)
+    set(CMAKE_CXX_CPPCHECK ${GE_CPPCHECK})
+endif()
+
+set(GE_CLANG_TIDY "" CACHE STRING "Value of CMAKE_CXX_CLANG_TIDY to set before building ge")
+if(GE_CLANG_TIDY)
+    set(CMAKE_CXX_CLANG_TIDY ${GE_CLANG_TIDY})
+endif()
+
 add_subdirectory(examples)
 add_subdirectory(lib)
 add_subdirectory(tools)

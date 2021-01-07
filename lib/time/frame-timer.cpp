@@ -5,7 +5,7 @@
 namespace ge {
 
 FrameTimer::FrameTimer(int fps)
-    : _delta(1.f / fps)
+    : _delta(1.0 / fps)
     , _frameDuration(std::chrono::duration_cast<Clock::duration>(
         std::chrono::duration<double>(_delta)))
     , _lastFrame(Clock::now())
@@ -34,4 +34,4 @@ void FrameTimer::relax()
     std::this_thread::sleep_until(_lastFrame + _frameDuration);
 }
 
-} // namespace ge::time
+} // namespace ge

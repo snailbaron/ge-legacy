@@ -1,7 +1,10 @@
 add_subdirectory(Catch2)
 add_subdirectory(SFML)
 add_subdirectory(arg)
+
+set(FLATBUFFERS_BUILD_TESTS OFF)
 add_subdirectory(flatbuffers)
+
 set(JSON_BuildTests OFF)
 add_subdirectory(json)
 
