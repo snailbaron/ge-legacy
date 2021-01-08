@@ -3,6 +3,7 @@
 namespace ge {
 
 enum class Key {
+    Unknown,
     A,
     B,
     C,

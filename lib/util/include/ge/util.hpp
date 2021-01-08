@@ -1,6 +1,5 @@
 #pragma once
 
-#include <filesystem>
-#include <vector>
-
-std::vector<unsigned char> slurp(const std::filesystem::path& path);
+#include "ge/util/filemap.hpp"
+#include "ge/util/registry.hpp"
+#include "ge/util/util.hpp"

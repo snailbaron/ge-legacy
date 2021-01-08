@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ge/client/keyboard.hpp"
+#include "ge/client/scene.hpp"
 
 #include <SFML/Graphics.hpp>
 
@@ -13,12 +14,6 @@
 
 namespace ge {
 
-class Actor {
-public:
-    virtual ~Actor() {}
-    virtual void draw(sf::RenderTarget& target) const = 0;
-};
-
 class Client {
 public:
     struct Config {
@@ -26,6 +21,7 @@ public:
     };
 
     bool isAlive() const;
+    float heightToWidthRatio() const;
 
     void create();
     void processInput();
@@ -35,22 +31,13 @@ public:
     void onKeyDownUp(
         Key key, std::function<void()> onKeyDown, std::function<void()> onKeyUp);
 
-    template <class T, class... Args>
-    std::shared_ptr<T> spawn(Args&&... args)
-    {
-        static_assert(std::is_base_of<Actor, T>());
-        auto p = std::make_shared<T>(std::forward<Args>(args)...);
-        _actors.push_back(p);
-        return p;
-    }
-
     Config config;
+    Scene scene;
 
 private:
     sf::RenderWindow _window;    
     std::map<Key, std::vector<std::function<void()>>> _onKeyUp;
     std::map<Key, std::vector<std::function<void()>>> _onKeyDown;
-    std::vector<std::weak_ptr<Actor>> _actors;
 };
 
 } // namespace ge

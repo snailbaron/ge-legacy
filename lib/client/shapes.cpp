@@ -1,39 +1,63 @@
 #include "ge/client/shapes.hpp"
 
-namespace ge {
+#include "conversion.hpp"
 
-Circle::Circle()
-{
-    _shape.setRadius(100.f);
-    _shape.setFillColor(sf::Color::White);
-    _shape.setOutlineColor(sf::Color::Green);
-    _shape.setPosition(10.f, 10.f);
-    _shape.setPointCount(64);
-}
+namespace ge {
 
 float Circle::x() const
 {
-    return _transformable.getPosition().x;
+    return _shape.getPosition().x;
 }
 
 void Circle::x(float xvalue)
 {
-    _transformable.setPosition(xvalue, y());
+    _shape.setPosition(xvalue, y());
 }
 
-float Circle::y()
+float Circle::y() const
 {
-    return _transformable.getPosition().y;
+    return _shape.getPosition().y;
 }
 
 void Circle::y(float yvalue)
 {
-    _transformable.setPosition(x(), yvalue);
+    _shape.setPosition(x(), yvalue);
+}
+
+float Circle::radius() const
+{
+    return _shape.getRadius();
+}
+
+void Circle::radius(float rvalue)
+{
+    _shape.setRadius(rvalue);
+    _shape.setOrigin(rvalue, rvalue);
+}
+
+Color Circle::color() const
+{
+    return fromSfmlColor(_shape.getFillColor());
+}
+
+void Circle::color(const Color& color)
+{
+    _shape.setFillColor(toSfmlColor(color));
 }
 
 void Circle::draw(sf::RenderTarget& target) const
 {
-    target.draw(_shape, _transformable.getTransform());
+    target.draw(_shape);
+}
+
+int Circle::pointCount() const
+{
+    return _shape.getPointCount();
+}
+
+void Circle::pointCount(int value)
+{
+    _shape.setPointCount(value);
 }
 
 } // namespace ge

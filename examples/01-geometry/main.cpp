@@ -3,19 +3,36 @@
 #include <algorithm>
 #include <vector>
 
+#include <iostream>
+
 struct Point {
     float x;
     float y;
 };
 
 struct Game {
-    void update(double delta)
+    void update(float delta)
     {
-        float shipAcceleration = -1.0 * leftPressed + 1.0 * rightPressed;
-        shipSpeed += shipAcceleration * delta;
-        shipSpeed = std::clamp(shipSpeed, -shipMaxSpeed, shipMaxSpeed);
+        float shipTargetSpeed = (rightPressed - leftPressed) * shipMaxSpeed;
+        if (shipTargetSpeed > shipSpeed) {
+            shipSpeed =
+                std::min(shipTargetSpeed, shipSpeed + shipAcceleration * delta);
+        } else if (shipTargetSpeed < shipSpeed) {
+            shipSpeed =
+                std::max(shipTargetSpeed, shipSpeed - shipAcceleration * delta);
+        }
+
         shipPosition += shipSpeed * delta;
-        shipPosition = std::clamp(shipPosition, 0.f, screenWidth);
+        if (shipPosition < 0.f) {
+            shipPosition = 0.f;
+            shipSpeed = 0.f;
+        } else if (shipPosition > 1.f) {
+            shipPosition = 1.f;
+            shipSpeed = 0.f;
+        }
+        std::cerr << "target speed: " << shipTargetSpeed <<
+            "; ship speed: " << shipSpeed <<
+            "; position: " << shipPosition << "\n";
 
         for (auto bullet = bullets.begin(); bullet != bullets.end(); ) {
             bullet->y += bulletSpeed * delta;
@@ -58,11 +75,10 @@ struct Game {
         }
     }
 
-    const float shipMaxSpeed = 10.f;
+    const float shipAcceleration = 1000.f;
+    const float shipMaxSpeed = 1.f;
     const double shotCooldownSeconds = 1.0;
-    const float screenWidth = 100.f;
-    const float screenHeight = 50.f;
-    const float bulletSpeed = 10.f;
+    const float bulletSpeed = 1.f;
     const float hitDistance = 5.f;
 
     float shipPosition = 0.f;
@@ -115,7 +131,12 @@ int main()
     const int fps = 60;
     auto timer = ge::FrameTimer{fps};
 
-    auto circle = client.spawn<ge::Circle>();
+    client.scene.view(0, 0, 1, client.heightToWidthRatio());
+
+    auto circle = client.scene.spawn<ge::Circle>();
+    circle->radius(0.05f);
+    circle->color({.r = 255, .g = 255, .b = 255, .a = 255});
+    circle->pointCount(32);
 
     while (client.isAlive()) {
         client.processInput();
@@ -127,8 +148,9 @@ int main()
             }
 
             client.update(framesPassed * timer.delta());
-            client.display();
         }
+
+        client.display();
 
         timer.relax();
     }
