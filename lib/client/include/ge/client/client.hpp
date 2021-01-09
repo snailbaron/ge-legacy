@@ -21,7 +21,9 @@ public:
     };
 
     bool isAlive() const;
-    float heightToWidthRatio() const;
+    void kill();
+    int width() const;
+    int height() const;
 
     void create();
     void processInput();

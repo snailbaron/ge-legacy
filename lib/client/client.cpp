@@ -29,10 +29,19 @@ bool Client::isAlive() const
     return _window.isOpen();
 }
 
-float Client::heightToWidthRatio() const
+void Client::kill()
 {
-    auto size = _window.getSize();
-    return 1.f * size.y / size.x;
+    _window.close();
+}
+
+int Client::width() const
+{
+    return _window.getSize().x;
+}
+
+int Client::height() const
+{
+    return _window.getSize().y;
 }
 
 void Client::processInput()
