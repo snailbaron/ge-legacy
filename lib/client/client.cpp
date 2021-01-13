@@ -78,22 +78,51 @@ void Client::processInput()
     }
 }
 
-void Client::update(double /*delta*/)
+void Client::update(double delta)
 {
+    for (auto& scene : _scenes) {
+        scene.update(delta);
+    }
 }
 
 void Client::display()
 {
+    if (!_window.isOpen()) {
+        return;
+    }
+
     _window.clear(defaultBackground);
-    scene.draw(_window);
+    for (auto& scene : _scenes) {
+        scene.draw(_window);
+    }
     _window.display();
+}
+
+void Client::onKeyDown(Key key, std::function<void()> onKeyDown)
+{
+    _onKeyDown[key].push_back(std::move(onKeyDown));
+}
+
+void Client::onKeyUp(Key key, std::function<void()> onKeyUp)
+{
+    _onKeyUp[key].push_back(std::move(onKeyUp));
 }
 
 void Client::onKeyDownUp(
     Key key, std::function<void()> onKeyDown, std::function<void()> onKeyUp)
 {
-    _onKeyDown[key].push_back(std::move(onKeyDown));
-    _onKeyUp[key].push_back(std::move(onKeyUp));
+    this->onKeyDown(key, std::move(onKeyDown));
+    this->onKeyUp(key, std::move(onKeyUp));
+}
+
+Scene& Client::scene(int index)
+{
+    return _scenes.at(index);
+}
+
+void Client::sceneNumber(int number)
+{
+    _scenes.resize(number);
 }
 
 } // namespace ge

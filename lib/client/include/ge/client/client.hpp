@@ -30,14 +30,19 @@ public:
     void update(double delta);
     void display();
 
+    void onKeyDown(Key key, std::function<void()> onKeyDown);
+    void onKeyUp(Key key, std::function<void()> onKeyDown);
     void onKeyDownUp(
         Key key, std::function<void()> onKeyDown, std::function<void()> onKeyUp);
 
+    Scene& scene(int index = 0);
+    void sceneNumber(int number);
+
     Config config;
-    Scene scene;
 
 private:
     sf::RenderWindow _window;    
+    std::vector<Scene> _scenes = std::vector<Scene>(1);
     std::map<Key, std::vector<std::function<void()>>> _onKeyUp;
     std::map<Key, std::vector<std::function<void()>>> _onKeyDown;
 };

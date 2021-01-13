@@ -1,24 +1,44 @@
 #include <ge.hpp>
 
 #include <algorithm>
+#include <filesystem>
 #include <utility>
 #include <vector>
 
+namespace fs = std::filesystem;
+
 struct Object {
     std::shared_ptr<ge::Circle> circle;
+    std::shared_ptr<ge::Sprite> sprite;
     float x = 0.f;
     float y = 0.f;
 };
 
 struct Game {
-    Game(ge::Client& client)
-        : client(client)
+    Game(ge::Scene& geometryScene, ge::Scene& spriteScene)
+        : geometryScene(geometryScene)
+        , spriteScene(spriteScene)
     {
-        ship = client.scene.spawn<ge::Circle>();
-        ship->radius(shipRadius);
-        ship->y(0);
-        ship->color({.r = 255, .g = 255, .b = 255, .a = 255});
-        ship->pointCount(32);
+        shipCircle = geometryScene.spawn<ge::Circle>();
+        shipCircle->radius(shipRadius);
+        shipCircle->y(0);
+        shipCircle->color({.r = 255, .g = 255, .b = 255, .a = 255});
+        shipCircle->pointCount(32);
+
+        const auto shipPath = fs::path{
+            "/home/snailbaron/code/ge/examples/01-starship/data/ship.png"};
+        auto shipFileMap = ge::ReadOnlyFileMap{shipPath};
+        shipTexture = ge::Texture{shipFileMap.content()};
+        shipSprite = spriteScene.spawn<ge::Sprite>(shipTexture);
+        shipSprite->frameSeconds(0.5f);
+        shipSprite->addFrame(0, 0, 16, 16);
+        shipSprite->addFrame(16, 0, 16, 16);
+        shipSprite->pixelSize(12.f * (1.f + 2 * shipRadius) / 1920);
+
+        const auto bulletPath = fs::path{
+            "/home/snailbaron/code/ge/examples/01-starship/data/rock.png"};
+        auto bulletFileMap = ge::ReadOnlyFileMap{bulletPath};
+        bulletTexture = ge::Texture{bulletFileMap.content()};
     }
 
     void update(float delta)
@@ -40,11 +60,29 @@ struct Game {
             shipPosition = 1.f;
             shipSpeed = 0.f;
         }
-        ship->x(shipPosition);
+        shipCircle->x(shipPosition);
+        shipSprite->x(shipPosition);
+
+        {
+            auto it = enemies.begin();
+            auto end = enemies.end();
+            while (it != end) {
+                if (it->y <= -0.1f) {
+                    --end;
+                    std::iter_swap(it, end);
+                } else {
+                    ++it;
+                }
+            }
+            enemies.erase(end, enemies.end());
+        }
 
         for (auto& enemy : enemies) {
             enemy.y -= enemySpeed * delta;
             enemy.circle->y(enemy.y);
+            enemy.sprite->y(enemy.y);
+            if (enemy.y <= 10) {
+            }
             if (enemy.y <= 0) {
                 lost = true;
             }
@@ -65,8 +103,8 @@ struct Game {
                     ++enemy;
                 }
             }
-            bullet->circle->x(bullet->x);
             bullet->circle->y(bullet->y);
+            bullet->sprite->y(bullet->y);
 
             if (hit) {
                 std::iter_swap(bullet, std::prev(bullets.end()));
@@ -82,10 +120,14 @@ struct Game {
 
             auto bullet = Object{};
             bullet.x = shipPosition;
-            bullet.circle = client.scene.spawn<ge::Circle>();
+            bullet.circle = geometryScene.spawn<ge::Circle>();
             bullet.circle->color({255, 255, 255, 255});
             bullet.circle->radius(bulletRadius);
             bullet.circle->x(bullet.x);
+            bullet.sprite = spriteScene.spawn<ge::Sprite>(bulletTexture);
+            bullet.sprite->addFrame(0, 0, 8, 8);
+            bullet.sprite->x(bullet.x);
+            bullet.sprite->pixelSize(12.f * (1.f + 2 * shipRadius) / 1920);
             bullets.push_back(std::move(bullet));
         }
 
@@ -98,11 +140,18 @@ struct Game {
             auto enemy = Object{};
             enemy.x = spawnX;
             enemy.y = 0.5f;
-            enemy.circle = client.scene.spawn<ge::Circle>();
+            enemy.circle = geometryScene.spawn<ge::Circle>();
             enemy.circle->color({255, 100, 100, 255});
             enemy.circle->radius(enemyRadius);
             enemy.circle->x(enemy.x);
             enemy.circle->y(enemy.y);
+            enemy.sprite = spriteScene.spawn<ge::Sprite>(shipTexture);
+            enemy.sprite->addFrame(0, 0, 16, 16);
+            enemy.sprite->addFrame(16, 0, 16, 16);
+            enemy.sprite->x(enemy.x);
+            enemy.sprite->y(enemy.y);
+            enemy.sprite->pixelSize(12.f * (1.f + 2 * shipRadius) / 1920);
+            enemy.sprite->rotation(180.f);
             enemies.push_back(std::move(enemy));
         }
 
@@ -117,23 +166,28 @@ struct Game {
     const float shipMaxSpeed = 0.7f;
     const float bulletSpeed = 0.7f;
     const float shipRadius = 0.05f;
-    const float bulletRadius = 0.01f;
+    const float bulletRadius = 0.02f;
     const float enemyRadius = 0.03f;
     const float enemySpeed = 0.2f;
 
-    ge::Client& client;
+    ge::Scene& geometryScene;
+    ge::Scene& spriteScene;
 
     const double shotCooldownSeconds = 1.0;
     double secondsSinceLastShot = shotCooldownSeconds;
 
     int spawnPosition = 0;
 
+    ge::Texture shipTexture;
+    ge::Texture bulletTexture;
+
     float shipPosition = 0.f;
     float shipSpeed = 0.f;
     bool leftPressed = false;
     bool rightPressed = false;
     bool shotRequested = false;
-    std::shared_ptr<ge::Circle> ship;
+    std::shared_ptr<ge::Circle> shipCircle;
+    std::shared_ptr<ge::Sprite> shipSprite;
     std::vector<Object> bullets;
     std::vector<Object> enemies;
     double spawnPeriodSeconds = 3.0;
@@ -150,12 +204,17 @@ int main()
     client.config.windowTitle = "Ge geometry example";
     client.create();
 
-    auto game = Game{client};
+    client.sceneNumber(2);
+    auto& geometryScene = client.scene(0);
+    auto& spriteScene = client.scene(1);
+
+    auto game = Game{geometryScene, spriteScene};
 
     auto r = game.shipRadius;
     auto w = 1.f + 2 * r;
     auto h = w * client.height() / client.width();
-    client.scene.view(-r, -r, w, h);
+    geometryScene.view(-r, -r, w, h);
+    spriteScene.view(-r, -r, w, h);
 
     client.onKeyDownUp(
         ge::Key::Left,
@@ -179,6 +238,24 @@ int main()
         },
         [&game] {
             game.shotRequested = false;
+        });
+    client.onKeyDown(
+        ge::Key::F1,
+        [&geometryScene, &spriteScene] {
+            geometryScene.visible(true);
+            spriteScene.visible(false);
+        });
+    client.onKeyDown(
+        ge::Key::F2,
+        [&geometryScene, &spriteScene] {
+            geometryScene.visible(false);
+            spriteScene.visible(true);
+        });
+    client.onKeyDown(
+        ge::Key::F3,
+        [&geometryScene, &spriteScene] {
+            geometryScene.visible(true);
+            spriteScene.visible(true);
         });
 
     const int fps = 60;

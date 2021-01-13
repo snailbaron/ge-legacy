@@ -5,11 +5,15 @@
 #include <utility>
 #include <vector>
 
+#include <iostream>
+
 namespace ge {
 
 template <class T>
 class Registry {
 public:
+    class EndSentinel {};
+
     template <bool Const>
     class CommonIterator {
     public:
@@ -25,7 +29,9 @@ public:
         CommonIterator(ContainerRef ptrs, ContainerIterator it)
             : _ptrs(ptrs)
             , _it(it)
-        { }
+        {
+            advanceTillValid();
+        }
 
         ElementRef operator*()
         {
@@ -34,25 +40,8 @@ public:
 
         CommonIterator& operator++()
         {
-            if constexpr (Const) {
-                do {
-                    ++_it;
-                } while (_it != _ptrs.end() && _it->expired());
-            } else {
-                auto end = _ptrs.end();
-                ++_it;
-                while (_it != end && _it->expired()) {
-                    --end;
-                    std::iter_swap(_it, end);
-                }
-
-                if (_it == end) {
-                    _ptrs.erase(end, _ptrs.end());
-                    _it = _ptrs.end();
-                } else {
-                    _ptrs.erase(end, _ptrs.end());
-                }
-            }
+            ++_it;
+            advanceTillValid();
             return *this;
         }
 
@@ -75,13 +64,60 @@ public:
             return !(lhs == rhs);
         }
 
+        friend bool operator==(const CommonIterator& it, EndSentinel)
+        {
+            return it._it == it._ptrs.end();
+        }
+
+        friend bool operator!=(const CommonIterator& it, EndSentinel end)
+        {
+            return !(it == end);
+        }
+
+        friend bool operator==(EndSentinel end, const CommonIterator& it)
+        {
+            return it == end;
+        }
+
+        friend bool operator!=(EndSentinel end, const CommonIterator& it)
+        {
+            return it != end;
+        }
+
     private:
+        void advanceTillValid()
+        {
+            if constexpr (Const) {
+                while (_it != _ptrs.end() && _it->expired()) {
+                    ++_it;
+                }
+            } else {
+                auto end = _ptrs.end();
+                while (_it != end && _it->expired()) {
+                    //std::cerr << "moving end\n";
+                    --end;
+                    std::iter_swap(_it, end);
+                }
+
+                if (_it == end) {
+                    //std::cerr << "it was end\n";
+                    _ptrs.erase(end, _ptrs.end());
+                    _it = _ptrs.end();
+                } else {
+                    //std::cerr << "it was not end\n";
+                    _ptrs.erase(end, _ptrs.end());
+                }
+            }
+        }
+
         ContainerRef _ptrs;
         ContainerIterator _it;
     };
 
     using Iterator = CommonIterator<false>;
     using ConstIterator = CommonIterator<true>;
+
+    // TODO(bug): move iterator to a valid position after begin()
 
     ConstIterator begin() const
     {
@@ -93,20 +129,15 @@ public:
         return {_ptrs, _ptrs.begin()};
     }
 
-    ConstIterator end() const
+    EndSentinel end() const
     {
-        return {_ptrs, _ptrs.end()};
-    }
-
-    Iterator end()
-    {
-        return {_ptrs, _ptrs.end()};
+        return {};
     }
 
     template <class Target, class... Args>
     std::shared_ptr<Target> spawn(Args&&... args)
     {
-        static_assert(std::is_base_of<T, Target>());
+        static_assert(std::is_convertible<Target*, T*>());
         auto p = std::make_shared<Target>(std::forward<Args>(args)...);
         _ptrs.push_back(p);
         return p;

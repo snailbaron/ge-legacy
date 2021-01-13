@@ -24,6 +24,9 @@ public:
         return _actors.spawn<T>(std::forward<Args>(args)...);
     }
 
+    bool visible() const;
+    void visible(bool value);
+
     void view(float x, float y, float w, float h);
     void update(double delta);
     void draw(sf::RenderTarget& target) const;
@@ -31,6 +34,7 @@ public:
 private:
     Registry<Actor> _actors;
     sf::View _view {{0, 0, 1, 1}};
+    bool _visible = true;
 };
 
 } // namespace ge

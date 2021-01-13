@@ -19,7 +19,7 @@ ReadOnlyFileMap::~ReadOnlyFileMap()
     unmap();
 }
 
-void map(const std::filesystem::path& filePath)
+void ReadOnlyFileMap::map(const std::filesystem::path& filePath)
 {
     unmap();
 
@@ -37,11 +37,16 @@ void map(const std::filesystem::path& filePath)
     close(fd);
 }
 
-void unmap()
+void ReadOnlyFileMap::unmap()
 {
     if (_addr) {
         munmap(_addr, _length);
     }
+}
+
+std::span<const std::byte> ReadOnlyFileMap::content() const
+{
+    return {static_cast<const std::byte*>(_addr), _length};
 }
 
 } // namespace ge

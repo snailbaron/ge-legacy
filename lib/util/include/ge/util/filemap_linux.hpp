@@ -1,6 +1,8 @@
 #pragma once
 
+#include <cstddef>
 #include <filesystem>
+#include <span>
 
 namespace ge {
 
@@ -14,6 +16,8 @@ public:
 
     void map(const std::filesystem::path& filePath);
     void unmap();
+
+    std::span<const std::byte> content() const;
 
 private:
     void* _addr = nullptr;

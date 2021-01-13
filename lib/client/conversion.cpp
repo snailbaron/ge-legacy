@@ -2,81 +2,80 @@
 
 namespace ge {
 
+namespace {
+
+struct KeyPair {
+    Key key;
+    sf::Keyboard::Key sfmlKey;
+};
+
+constexpr auto _keyPairs = std::to_array<KeyPair>({
+    { Key::Unknown, sf::Keyboard::Key::Unknown },
+    { Key::A,       sf::Keyboard::Key::A       },
+    { Key::B,       sf::Keyboard::Key::B       },
+    { Key::C,       sf::Keyboard::Key::C       },
+    { Key::D,       sf::Keyboard::Key::D       },
+    { Key::E,       sf::Keyboard::Key::E       },
+    { Key::F,       sf::Keyboard::Key::F       },
+    { Key::G,       sf::Keyboard::Key::G       },
+    { Key::H,       sf::Keyboard::Key::H       },
+    { Key::I,       sf::Keyboard::Key::I       },
+    { Key::J,       sf::Keyboard::Key::J       },
+    { Key::K,       sf::Keyboard::Key::K       },
+    { Key::L,       sf::Keyboard::Key::L       },
+    { Key::M,       sf::Keyboard::Key::M       },
+    { Key::N,       sf::Keyboard::Key::N       },
+    { Key::O,       sf::Keyboard::Key::O       },
+    { Key::P,       sf::Keyboard::Key::P       },
+    { Key::Q,       sf::Keyboard::Key::Q       },
+    { Key::R,       sf::Keyboard::Key::R       },
+    { Key::S,       sf::Keyboard::Key::S       },
+    { Key::T,       sf::Keyboard::Key::T       },
+    { Key::U,       sf::Keyboard::Key::U       },
+    { Key::V,       sf::Keyboard::Key::V       },
+    { Key::W,       sf::Keyboard::Key::W       },
+    { Key::X,       sf::Keyboard::Key::X       },
+    { Key::Y,       sf::Keyboard::Key::Y       },
+    { Key::Z,       sf::Keyboard::Key::Z       },
+    { Key::F1,      sf::Keyboard::Key::F1      },
+    { Key::F2,      sf::Keyboard::Key::F2      },
+    { Key::F3,      sf::Keyboard::Key::F3      },
+    { Key::F4,      sf::Keyboard::Key::F4      },
+    { Key::F5,      sf::Keyboard::Key::F5      },
+    { Key::F6,      sf::Keyboard::Key::F6      },
+    { Key::F7,      sf::Keyboard::Key::F7      },
+    { Key::F8,      sf::Keyboard::Key::F8      },
+    { Key::F9,      sf::Keyboard::Key::F9      },
+    { Key::F10,     sf::Keyboard::Key::F10     },
+    { Key::F11,     sf::Keyboard::Key::F11     },
+    { Key::F12,     sf::Keyboard::Key::F12     },
+    { Key::Space,   sf::Keyboard::Key::Space   },
+    { Key::Left,    sf::Keyboard::Key::Left    },
+    { Key::Right,   sf::Keyboard::Key::Right   },
+    { Key::Up,      sf::Keyboard::Key::Up      },
+    { Key::Down,    sf::Keyboard::Key::Down    },
+});
+
+} // namespace
+
 sf::Keyboard::Key toSfmlKey(Key key)
 {
-    switch (key) {
-        case Key::Unknown: return sf::Keyboard::Unknown;
-        case Key::A: return sf::Keyboard::A;
-        case Key::B: return sf::Keyboard::B;
-        case Key::C: return sf::Keyboard::C;
-        case Key::D: return sf::Keyboard::D;
-        case Key::E: return sf::Keyboard::E;
-        case Key::F: return sf::Keyboard::F;
-        case Key::G: return sf::Keyboard::G;
-        case Key::H: return sf::Keyboard::H;
-        case Key::I: return sf::Keyboard::I;
-        case Key::J: return sf::Keyboard::J;
-        case Key::K: return sf::Keyboard::K;
-        case Key::L: return sf::Keyboard::L;
-        case Key::M: return sf::Keyboard::M;
-        case Key::N: return sf::Keyboard::N;
-        case Key::O: return sf::Keyboard::O;
-        case Key::P: return sf::Keyboard::P;
-        case Key::Q: return sf::Keyboard::Q;
-        case Key::R: return sf::Keyboard::R;
-        case Key::S: return sf::Keyboard::S;
-        case Key::T: return sf::Keyboard::T;
-        case Key::U: return sf::Keyboard::U;
-        case Key::V: return sf::Keyboard::V;
-        case Key::W: return sf::Keyboard::W;
-        case Key::X: return sf::Keyboard::X;
-        case Key::Y: return sf::Keyboard::Y;
-        case Key::Z: return sf::Keyboard::Z;
-        case Key::Space: return sf::Keyboard::Space;
-        case Key::Left: return sf::Keyboard::Left;
-        case Key::Up: return sf::Keyboard::Up;
-        case Key::Right: return sf::Keyboard::Right;
-        case Key::Down: return sf::Keyboard::Down;
+    for (const auto& p : _keyPairs) {
+        if (key == p.key) {
+            return p.sfmlKey;
+        }
     }
-    return sf::Keyboard::Unknown;
+    return sf::Keyboard::Key::Unknown;
 }
 
 Key fromSfmlKey(sf::Keyboard::Key sfmlKey)
 {
-    switch (sfmlKey) {
-        case sf::Keyboard::A: return Key::A;
-        case sf::Keyboard::B: return Key::B;
-        case sf::Keyboard::C: return Key::C;
-        case sf::Keyboard::D: return Key::D;
-        case sf::Keyboard::E: return Key::E;
-        case sf::Keyboard::F: return Key::F;
-        case sf::Keyboard::G: return Key::G;
-        case sf::Keyboard::H: return Key::H;
-        case sf::Keyboard::I: return Key::I;
-        case sf::Keyboard::J: return Key::J;
-        case sf::Keyboard::K: return Key::K;
-        case sf::Keyboard::L: return Key::L;
-        case sf::Keyboard::M: return Key::M;
-        case sf::Keyboard::N: return Key::N;
-        case sf::Keyboard::O: return Key::O;
-        case sf::Keyboard::P: return Key::P;
-        case sf::Keyboard::Q: return Key::Q;
-        case sf::Keyboard::R: return Key::R;
-        case sf::Keyboard::S: return Key::S;
-        case sf::Keyboard::T: return Key::T;
-        case sf::Keyboard::U: return Key::U;
-        case sf::Keyboard::V: return Key::V;
-        case sf::Keyboard::W: return Key::W;
-        case sf::Keyboard::X: return Key::X;
-        case sf::Keyboard::Y: return Key::Y;
-        case sf::Keyboard::Z: return Key::Z;
-        case sf::Keyboard::Space: return Key::Space;
-        case sf::Keyboard::Left: return Key::Left;
-        case sf::Keyboard::Up: return Key::Up;
-        case sf::Keyboard::Right: return Key::Right;
-        case sf::Keyboard::Down: return Key::Down;
-        default: return Key::Unknown;
+    for (const auto& p : _keyPairs) {
+        if (sfmlKey == p.sfmlKey) {
+            return p.key;
+        }
     }
+    return Key::Unknown;
 }
 
 sf::Color toSfmlColor(const Color& color)

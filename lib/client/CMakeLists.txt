@@ -8,4 +8,5 @@ ge_target(
         conversion.cpp
         scene.cpp
         shapes.cpp
+        sprite.cpp
 )
