@@ -1,15 +1,8 @@
 add_subdirectory(Catch2)
-add_subdirectory(SFML)
-add_subdirectory(arg)
 
 set(FLATBUFFERS_BUILD_TESTS OFF)
 add_subdirectory(flatbuffers)
 
-set(JSON_BuildTests OFF)
-add_subdirectory(json)
+add_subdirectory(SFML)
 
-include(FetchContent)
-FetchContent_Declare(
-    LIBPNG
-    URL "https://download.sourceforge.net/libpng/libpng-1.6.37.tar.xz"
-)
+add_subdirectory(arg)

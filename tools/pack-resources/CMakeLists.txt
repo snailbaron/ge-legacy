@@ -1,6 +1,13 @@
-ge_target(
-    PROGRAM
+add_executable(pack-resources main.cpp)
+target_link_libraries(pack-resources PUBLIC ge)
 
-    SOURCES
-        main.cpp
-)
+#ge_target(
+#    PROGRAM
+#
+#    DEPENDS
+#        ge
+#        stdc++fs
+#
+#    SOURCES
+#        main.cpp
+#)

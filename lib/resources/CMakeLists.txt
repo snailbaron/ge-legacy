@@ -1,11 +1,12 @@
 ge_target(
-    SOURCES
-        packer.cpp
+    DEPENDS
+        error
+        util
 
     FLATBUFFERS
         schema.fbs
 
-    DEPENDS
-        error
-        util
+    SOURCES
+        resource_writer.cpp
+        resources.cpp
 )

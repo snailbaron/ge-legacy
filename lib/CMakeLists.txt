@@ -1,10 +1,11 @@
 set(GE_LIBS
     client
     error
-    imp
     math
     resources
+    str
     time
+    tyke
     ui
     util
 )
@@ -18,4 +19,4 @@ target_include_directories(ge PUBLIC ${PROJECT_SOURCE_DIR}/include)
 foreach(ge_lib ${GE_LIBS})
     target_link_libraries(ge PUBLIC ${ge_lib})
 endforeach()
-add_dependencies(ge ${GE_LIBS})
+#add_dependencies(ge ${GE_LIBS})

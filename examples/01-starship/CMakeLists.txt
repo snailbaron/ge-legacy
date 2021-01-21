@@ -3,6 +3,7 @@ ge_target(
 
     DEPENDS
         ge
+        util
 
     SOURCES
         main.cpp

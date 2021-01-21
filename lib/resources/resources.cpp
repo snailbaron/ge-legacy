@@ -1,77 +1,58 @@
-#include "ge/resources/data.hpp"
-#include "schema_generated.h"
-
-#include <fstream>
-
-namespace fs = std::filesystem;
+#include "ge/resources/resources.hpp"
 
 namespace ge {
 
-namespace {
+Frame::Frame(const schema::Frame* frame)
+    : _frame(frame)
+{ }
 
-ge::Sprite Resources::load(SpriteId spriteId) const
+int Frame::x() const
 {
-    auto animation = _root->animations(spriteId);
+    return _frame->x();
 }
 
-
-
-class ResourceHolder {
-public:
-    ResourceHolder(const std::filesystem::path& dataFilePath);
-
-private:
-    std::vector<unsigned char> _buffer;
-    const schema::Resources* _data;
-    sf::Texture _texture;
-};
-
-const schema::Resources* resources()
+int Frame::y() const
 {
-    static ResourceHolder holder;
-    return holder.data;
+    return _frame->y();
 }
 
-} // namespace
+SpriteData::SpriteData(const schema::Sprite* sprite)
+    : _sprite(sprite)
+{ }
 
-void Sprite::animation(AnimationId animationId)
+size_t SpriteData::sheetIndex() const
 {
-    _animation = resources().data.animation(animationId);
-    _metronome.reset();
-    setFrame(0);
+    return 0;
 }
 
-void Sprite::update(double delta)
+int SpriteData::frameMs() const
 {
-    if (animation) {
-        if (auto offset = _metronome(); offset > 0) {
-            setFrame((_frameIndex + offset) % _animation->frames_size());
-        }
-    }
+    return _sprite->frame_ms();
 }
 
-void Sprite::setFrame(size_t frameIndex)
+int SpriteData::width() const
 {
-    _frameIndex = frameIndex;
-    auto frame = _animation->frames(_frameIndex);
-    _sprite.setTextureRect({frame.x, frame.y, frame.w, frame.h});
+    return _sprite->width();
 }
 
-Resources::Resources(const std::filesystem::path& dataFilePath)
+int SpriteData::height() const
 {
-    auto input = std::ifstream{dataFilePath, std::ios::binary};
-    input.seekg(0, std::ios::end);
-    auto inputLength = input.tellg();
-    input.seekg(0, std::ios::beg);
-    _buffer.resize(inputLength);
-    input.read(_buffer.data(), inputLength);
-    _data = GetResources(_buffer);
-
-    _texture.loadFromMemory(_data->sheet, _data->sheet_size());
+    return _sprite->height();
 }
 
-Sprite load(SpriteId spriteId)
+size_t SpriteData::frameCount() const
 {
+    return _sprite->frames()->size();
 }
+
+Frame SpriteData::frame(size_t index) const
+{
+    return Frame(_sprite->frames()->Get(index));
+}
+
+Resources::Resources(const std::filesystem::path& resourceFilePath)
+    : _data(resourceFilePath)
+    , _root(schema::GetResources(_data.content().data()))
+{ }
 
 } // namespace ge

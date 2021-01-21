@@ -6,12 +6,12 @@ namespace ge.schema;
 struct Frame {
   x:uint32;
   y:uint32;
-  w:uint32;
-  h:uint32;
 }
 
-table Animation {
+table Sprite {
   frame_ms:uint32;
+  width:uint32;
+  height:uint32;
   frames:[Frame];
 }
 
@@ -21,7 +21,7 @@ table Font {
 
 table Resources {
   sheet:[uint8];
-  animations:[Animation];
+  sprites:[Sprite];
   fonts:[Font];
 }
 

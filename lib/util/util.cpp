@@ -4,6 +4,8 @@
 
 namespace fs = std::filesystem;
 
+namespace ge {
+
 std::vector<unsigned char> slurp(const fs::path& path)
 {
     auto input = std::ifstream{path, std::ios::binary | std::ios::ate};
@@ -14,3 +16,5 @@ std::vector<unsigned char> slurp(const fs::path& path)
     input.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
     return buffer;
 }
+
+} // namespace ge

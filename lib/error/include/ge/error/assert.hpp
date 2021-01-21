@@ -27,19 +27,19 @@ public:
     template <class T>
     Exception& operator<<(const T& value)
     {
-        auto stream = std::ostringstream{std::move(_string)};
+        auto stream = std::ostringstream{std::move(_message), std::ios::app};
         stream << value;
-        _string = stream.str();
+        _message = stream.str();
         return *this;
     }
 
     const char* what() const noexcept override
     {
-        return _string.c_str();
+        return _message.c_str();
     }
 
 private:
-    std::string _string;
+    std::string _message;
 };
 
 } // namespace
