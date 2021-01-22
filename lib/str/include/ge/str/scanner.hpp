@@ -21,18 +21,6 @@ inline bool matches(char c, char etalon)
 
 class Scanner {
 public:
-    struct Error : public Exception {
-        Error(std::string string, size_t position, std::string message)
-            : string(std::move(string))
-            , position(position)
-            , message(std::move(message))
-        { }
-
-        std::string string;
-        size_t position = 0;
-        std::string message;
-    };
-
     Scanner(std::string_view s)
         : _s(s)
     { }
@@ -69,13 +57,12 @@ public:
     }
 
 private:
-    void error(std::string&& message)
+    void error(std::string_view message)
     {
-        throw Error{
-            .string = std::string{_s},
-            .position = _i,
-            .message = std::move(message)
-        };
+        throw Exception{} <<
+            _s << "\n" <<
+            std::string(_i, ' ') << "^" << "\n" <<
+            message << "\n";
     }
 
     std::string_view _s;

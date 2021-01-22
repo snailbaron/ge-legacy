@@ -13,7 +13,7 @@ namespace ge {
 
 class Frame {
 public:
-    Frame(const schema::Frame* frame);
+    explicit Frame(const schema::Frame* frame);
 
     int x() const;
     int y() const;
@@ -24,7 +24,7 @@ private:
 
 class SpriteData {
 public:
-    SpriteData(const schema::Sprite* sprite);
+    explicit SpriteData(const schema::Sprite* sprite);
 
     size_t sheetIndex() const;
     int frameMs() const;
@@ -39,7 +39,7 @@ private:
 
 class Resources {
 public:
-    Resources(const std::filesystem::path& resourceFilePath);
+    explicit Resources(const std::filesystem::path& resourceFilePath);
 
     size_t sheetCount() const;
     std::span<const std::byte> sheet(size_t index) const;

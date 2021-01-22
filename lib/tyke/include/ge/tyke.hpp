@@ -10,16 +10,26 @@ namespace ge::tyke {
 
 class Value {
 public:
-    explicit Value(std::string text = "");
-    operator const std::string&() const;
+    Value() {}
+    explicit Value(std::string text);
 
     template <class T> T as() const
     {
-        return T{_text};
+        assumeNonEmpty();
+        return T{*_text};
     }
 
+    template <class T> T optional(T defaultValue = T{}) const
+    {
+        return _text ? as<T>() : defaultValue;
+    }
+
+    friend std::ostream& operator<<(std::ostream& output, const Value& value);
+
 private:
-    std::string _text;
+    void assumeNonEmpty() const;
+
+    std::optional<std::string> _text;
 };
 
 template <> int Value::as<int>() const;
@@ -34,7 +44,11 @@ public:
     const Value& operator[](std::string_view key) const;
     void add(std::string_view key, Value value);
 
+    friend std::ostream& operator<<(std::ostream& output, const Record& record);
+
 private:
+    static const Value _emptyValue;
+
     std::string _type;
     std::map<std::string, Value> _parameters;
 };

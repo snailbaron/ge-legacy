@@ -1,1 +1,1 @@
-add_subdirectory(pack-resources)
+add_subdirectory(re)

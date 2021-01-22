@@ -55,4 +55,37 @@ Resources::Resources(const std::filesystem::path& resourceFilePath)
     , _root(schema::GetResources(_data.content().data()))
 { }
 
+size_t Resources::sheetCount() const
+{
+    return _root->sheet()->size() > 0 ? 1 : 0;
+}
+
+std::span<const std::byte> Resources::sheet(size_t /*index*/) const
+{
+    return std::as_bytes(
+        std::span{_root->sheet()->data(), _root->sheet()->size()});
+}
+
+size_t Resources::spriteCount() const
+{
+    return _root->sprites()->size();
+}
+
+SpriteData Resources::sprite(size_t index) const
+{
+    return SpriteData{_root->sprites()->Get(index)};
+}
+
+size_t Resources::fontCount() const
+{
+    return _root->fonts()->size();
+}
+
+std::span<const std::byte> Resources::font(size_t index) const
+{
+    auto font = _root->fonts()->Get(index);
+    return std::as_bytes(
+        std::span{font->bytes()->data(), font->bytes()->size()});
+}
+
 } // namespace ge

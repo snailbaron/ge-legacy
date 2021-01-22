@@ -17,4 +17,18 @@ std::vector<unsigned char> slurp(const fs::path& path)
     return buffer;
 }
 
+void write(const std::vector<unsigned char>& data, const fs::path& path)
+{
+    auto output = std::ofstream{path, std::ios::binary};
+    output.exceptions(std::ios::badbit | std::ios::failbit);
+    output.write(reinterpret_cast<const char*>(data.data()), data.size());
+}
+
+void write(const std::span<const std::byte>& bytes, const fs::path& path)
+{
+    auto output = std::ofstream{path, std::ios::binary};
+    output.exceptions(std::ios::badbit | std::ios::failbit);
+    output.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+}
+
 } // namespace ge

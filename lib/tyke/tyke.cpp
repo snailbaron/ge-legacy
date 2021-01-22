@@ -4,6 +4,7 @@
 #include "ge/str.hpp"
 
 #include <cctype>
+#include <iostream>
 
 namespace ge::tyke {
 
@@ -49,14 +50,25 @@ Value::Value(std::string text)
     : _text(text)
 { }
 
-Value::operator const std::string&() const
-{
-    return _text;
-}
-
 template <> int Value::as<int>() const
 {
-    return std::stoi(_text);
+    assumeNonEmpty();
+    return std::stoi(*_text);
+}
+
+void Value::assumeNonEmpty() const
+{
+    if (!_text) {
+        throw Exception{} << "ge::tyke::Value is empty";
+    }
+}
+
+const Value Record::_emptyValue {};
+
+std::ostream& operator<<(std::ostream& output, const Value& value)
+{
+    value.assumeNonEmpty();
+    return output << *value._text;
 }
 
 const std::string& Record::type() const
@@ -76,11 +88,11 @@ bool Record::contains(std::string_view key) const
 
 const Value& Record::operator[](std::string_view key) const
 {
-    auto it = _parameters.find(std::string{key});
-    if (it == _parameters.end()) {
-        throw Exception{} << "no key: '" << key << "'";
+    if (auto it = _parameters.find(std::string{key}); it != _parameters.end()) {
+        return it->second;
+    } else {
+        return _emptyValue;
     }
-    return it->second;
 }
 
 void Record::add(std::string_view key, Value value)
@@ -90,6 +102,15 @@ void Record::add(std::string_view key, Value value)
     if (!inserted) {
         throw Exception{} << "key already set: '" << key << "'";
     }
+}
+
+std::ostream& operator<<(std::ostream& output, const Record& record)
+{
+    output << "[" << record._type << "]";
+    for (const auto& [key, value] : record._parameters) {
+        output << " " << key << " = " << value << ";";
+    }
+    return output;
 }
 
 Scanner::Iterator::Iterator(std::istream& input)
@@ -131,12 +152,14 @@ bool operator!=(Scanner::Sentinel s, const Scanner::Iterator& it)
 
 void Scanner::Iterator::advance()
 {
+    std::optional<Record> nextRecord;
     for (std::string line; std::getline(_input, line); ) {
-        _record = parseResourceDescription(line);
-        if (_record) {
+        nextRecord = parseResourceDescription(line);
+        if (nextRecord) {
             break;
         }
     }
+    _record = std::move(nextRecord);
 }
 
 Scanner::Scanner(std::istream& input)
