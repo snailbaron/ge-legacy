@@ -33,6 +33,7 @@ public:
         int frameMs = 250);
     FontId addFont(const std::filesystem::path& path);
     void write(std::ostream& output);
+    void write(const std::filesystem::path& outputFilePath);
 
 private:
     struct SpriteFileInfo {

@@ -5,6 +5,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <fstream>
+
 namespace fs = std::filesystem;
 
 namespace ge {
@@ -12,6 +14,7 @@ namespace ge {
 SpriteId ResourceWriter::addSprite(
     const fs::path& path, int frameCount, int frameMs)
 {
+    std::cerr << "adding sprite at " << path << "\n";
     _spriteFilesInfo.push_back({
         .path = path,
         .frameCount = frameCount,
@@ -22,6 +25,7 @@ SpriteId ResourceWriter::addSprite(
 
 FontId ResourceWriter::addFont(const fs::path& path)
 {
+    std::cerr << "adding font: " << path << "\n";
     auto fontBytes = slurp(path);
     auto fontBytesVector = _builder.CreateVector<unsigned char>(fontBytes);
     auto fontOffset = schema::CreateFont(_builder, fontBytesVector);
@@ -91,15 +95,16 @@ void ResourceWriter::write(std::ostream& output)
         _builder, sheetBytesVector, spritesVector, fontsVector);
     _builder.Finish(resources);
 
-    //auto resourcesBuilder = schema::ResourcesBuilder{_builder};
-    //resourcesBuilder.add_sheet(sheetBytesVector);
-    //resourcesBuilder.add_sprites(spritesVector);
-    //resourcesBuilder.add_fonts(fontsVector);
-    //_builder.Finish(resourcesBuilder.Finish());
-    
     output.write(
         reinterpret_cast<const char*>(_builder.GetBufferPointer()),
         _builder.GetSize());
+}
+
+void ResourceWriter::write(const fs::path& outputFilePath)
+{
+    auto output = std::ofstream{outputFilePath, std::ios::binary};
+    output.exceptions(std::ios::badbit | std::ios::failbit);
+    write(output);
 }
 
 } // namespace ge

@@ -1,5 +1,7 @@
 #include <ge/util.hpp>
 
+#include <ge/error.hpp>
+
 #include <fstream>
 
 namespace fs = std::filesystem;
@@ -9,7 +11,9 @@ namespace ge {
 std::vector<unsigned char> slurp(const fs::path& path)
 {
     auto input = std::ifstream{path, std::ios::binary | std::ios::ate};
-    input.exceptions(std::ios::badbit | std::ios::failbit);
+    if (!input.is_open()) {
+        throw Exception{} << "slurp: cannot open file: " << path;
+    }
     std::vector<unsigned char> buffer;
     buffer.resize(input.tellg());
     input.seekg(0, std::ios::beg);

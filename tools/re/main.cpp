@@ -9,17 +9,19 @@
 
 namespace fs = std::filesystem;
 
-void pack(const fs::path& resourceDescriptionFilePath)
+void pack(
+    const fs::path& resourceDescriptionFilePath, const fs::path& outputFilePath)
 {
     auto resourceWriter = ge::ResourceWriter{};
 
     auto input = std::ifstream{resourceDescriptionFilePath};
     for (auto record : ge::tyke::Scanner{input}) {
-        if (record.type() == "png") {
+        std::cerr << "record: " << record << "\n";
+        if (record.type() == "sprite") {
             resourceWriter.addSprite(
                 record["path"].as<fs::path>(),
                 record["frames"].optional<int>(1));
-        } else if (record.type() == "ttf") {
+        } else if (record.type() == "font") {
             resourceWriter.addFont(record["path"].as<fs::path>());
         } else {
             throw ge::Exception{} << "unknown resource type: [" <<
@@ -27,7 +29,8 @@ void pack(const fs::path& resourceDescriptionFilePath)
         }
     }
 
-    resourceWriter.write(std::cout);
+    std::cerr << "writing output file to " << outputFilePath << "\n";
+    resourceWriter.write(outputFilePath);
 }
 
 void unpack(const fs::path& dataFilePath)
@@ -65,21 +68,40 @@ void unpack(const fs::path& dataFilePath)
 
 int main(int argc, char* argv[])
 {
-    try {
-        if (argc != 3) {
-            std::cout <<
-                "Usage:\n" <<
-                "    re pack RESOURCE_DESCRIPTION_FILE\n" <<
-                "    re unpack RESOURCE_DATA_FILE\n";
-            return 0;
-        }
+    for (int i = 0; i < argc; i++) {
+        std::cerr << "arg: '" << argv[i] << "'\n";
+    }
 
+    auto printUsage = [] {
+        std::cout << R"_(
+Usage:
+    re pack RESOURCE_DESCRIPTION_FILE OUTPUT_FILE
+    re unpack RESOURCE_DATA_FILE
+        )_";
+    };
+
+    try {
+        if (argc < 2) {
+            printUsage();
+            return 1;
+        }
         auto command = std::string{argv[1]};
-        auto filePath = fs::path{argv[2]};
+
         if (command == "pack") {
-            pack(filePath);
+            if (argc != 4) {
+                printUsage();
+                return 1;
+            }
+            auto resourceDescriptionFilePath = fs::path{argv[2]};
+            auto outputFilePath = fs::path{argv[3]};
+            pack(resourceDescriptionFilePath, outputFilePath);
         } else if (command == "unpack") {
-            unpack(filePath);
+            if (argc != 3) {
+                printUsage();
+                return 1;
+            }
+            auto resourceDataFilePath = fs::path{argv[2]};
+            unpack(resourceDataFilePath);
         } else {
             std::cerr << "unknown command: '" << command << "'\n";
             return 1;

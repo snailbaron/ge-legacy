@@ -107,55 +107,55 @@ macro(ge_target)
             add_dependencies(${GE_TARGET_NAME} ${target_name})
         endforeach()
     endif()
-endmacro()
 
-# This is mostly just an idea, have never tried it.
-macro(ge_resource_library)
-    set(options "")
-    set(one_value_args NAME)
-    set(multi_value_args "")
-    cmake_parse_arguments(
-        GE_RESOURCE_LIBRARY
-            "${options}"
-            "${one_value_args}"
-            "${multi_value_args}"
-            ${ARGN})
+    if(GE_TARGET_RESOURCES)
+        set(resource_list_path "${CMAKE_CURRENT_BINARY_DIR}/resource.list")
+        file(WRITE ${resource_list_path} "")
 
-    file(RELATIVE_PATH relative_path ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+        set(known_resource_types SPRITE FONT)
+        set(resource_paths "")
+        list(POP_FRONT GE_TARGET_RESOURCES resource_type)
+        while(resource_type)
+            if (NOT resource_type IN_LIST known_resource_types)
+                ge_error("ge target '${GE_TARGET_NAME}': unknown resource type '${resource_type}'")
+            endif()
 
-    set(input_args "")
-    set(input_paths "")
-    while(ARGN)
-        list(POP_FRONT ARGN type)
-        list(POP_FRONT ARGN path)
-        list(POP_FRONT ARGN name)
+            list(POP_FRONT GE_TARGET_RESOURCES resource_path)
+            # TODO: check resource path
+            list(APPEND resource_paths ${resource_path})
 
-        if(type STREQUAL "PNG")
-            list(APPEND input_args --png "${path}" "${name}")
-        elseif(type STREQUAL "TTF")
-            list(APPEND input_args --ttf "${path}" "${name}")
-        else()
-            ge_error("unknown resource type: ${type}")
-        endif()
-        list(APPEND input_paths "${path}")
-    endwhile()
+            string(TOLOWER ${resource_type} resource_type_lc)
+            set(resource_description "[${resource_type_lc}] path=${resource_path};")
 
-    add_custom_command(
-        COMMENT "generate resource library ${GE_RESOURCE_LIBRARY_NAME} at ${relative_path}"
-        OUTPUT
-            "${CMAKE_CURRENT_BINARY_DIR}/resources.hpp"
-            "${CMAKE_CURRENT_BINARY_DIR}/data.ge"
-        COMMAND
-            $<TARGET_FILE:pack-resources>
-                ${input_args}
-                --output-header "${CMAKE_CURRENT_BINARY_DIR}/resources.hpp"
-                --output-data "${CMAKE_CURRENT_BINARY_DIR}/data.ge"
-        DEPENDS ${input_paths}
-    )
-    add_custom_target(
-        ${GE_RESOURCE_LIBRARY_NAME}
-        DEPENDS
-            "${CMAKE_CURRENT_BINARY_DIR}/resources.hpp"
-            "${CMAKE_CURRENT_BINARY_DIR}/data.ge"
-    )
+            list(POP_FRONT GE_TARGET_RESOURCES param_name)
+            while(param_name AND NOT param_name IN_LIST known_resource_types)
+                list(POP_FRONT GE_TARGET_RESOURCES param_value)
+                string(TOLOWER ${param_name} param_name_lc)
+                string(APPEND resource_description " ${param_name_lc}=${param_value};")
+                message(STATUS "adding to resource description: ${param_name_lc}=${param_value};")
+                list(POP_FRONT GE_TARGET_RESOURCES param_name)
+            endwhile()
+            set(resource_type ${param_name})
+
+            file(APPEND ${resource_list_path} "${resource_description}\n")
+        endwhile()
+
+        set(resource_data_path "${CMAKE_CURRENT_BINARY_DIR}/resources.data")
+        set(pack_resources_target_name "${GE_TARGET_NAME}-pack-resources")
+        set(generated_header_path
+            "${CMAKE_CURRENT_BINARY_DIR}/generated_resource_header/resource_ids.hpp")
+        add_custom_command(
+            COMMENT "pack resources for target '${GE_TARGET_NAME}'"
+            OUTPUT ${resource_data_path}
+            COMMAND $<TARGET_FILE:re>
+                pack "${resource_list_path}" "${resource_data_path}"
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        )
+        add_custom_target(
+            ${pack_resources_target_name}
+            DEPENDS ${resource_data_path}
+        )
+
+        add_dependencies(${GE_TARGET_NAME} ${pack_resources_target_name})
+    endif()
 endmacro()
