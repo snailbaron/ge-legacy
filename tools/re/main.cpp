@@ -9,28 +9,106 @@
 
 namespace fs = std::filesystem;
 
-void pack(
-    const fs::path& resourceDescriptionFilePath, const fs::path& outputFilePath)
+bool isValidResourceId(std::string_view s)
 {
+    if (s.empty()) {
+        return false;
+    }
+    if (!std::isalpha(s[0])) {
+        return false;
+    }
+    for (size_t i = 1; i < s.size(); i++) {
+        if (!std::isalnum(s[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void pack(
+    const fs::path& resourceDescriptionFilePath,
+    const fs::path& outputDataFilePath,
+    const fs::path& outputHeaderPath)
+{
+    struct FontIdNames {
+        ge::FontId id;
+        std::string name;
+    };
+
+    struct SpriteIdNames {
+        ge::SpriteId id;
+        std::string name;
+    };
+
+    std::vector<FontIdNames> fontIdNames;
+    std::vector<SpriteIdNames> spriteIdNames;
+
     auto resourceWriter = ge::ResourceWriter{};
 
     auto input = std::ifstream{resourceDescriptionFilePath};
     for (auto record : ge::tyke::Scanner{input}) {
         std::cerr << "record: " << record << "\n";
+
+        auto name = record["id"].optional<std::string>();
+        if (name.empty()) {
+            name = record["path"].as<fs::path>().stem().string();
+        }
+        if (!isValidResourceId(name)) {
+            throw ge::Exception{} << "invalid name '" << name <<
+                "' in resource " << record;
+        }
+
         if (record.type() == "sprite") {
-            resourceWriter.addSprite(
+            auto id = resourceWriter.addSprite(
                 record["path"].as<fs::path>(),
                 record["frames"].optional<int>(1));
+            spriteIdNames.push_back({.id = id, .name = name});
         } else if (record.type() == "font") {
-            resourceWriter.addFont(record["path"].as<fs::path>());
+            auto id = resourceWriter.addFont(record["path"].as<fs::path>());
+            fontIdNames.push_back({.id = id, .name = name});
         } else {
             throw ge::Exception{} << "unknown resource type: [" <<
                 record.type() << "]\n";
         }
     }
 
-    std::cerr << "writing output file to " << outputFilePath << "\n";
-    resourceWriter.write(outputFilePath);
+    std::cerr << "writing output file to " << outputDataFilePath << "\n";
+    resourceWriter.write(outputDataFilePath);
+
+    std::cerr << "writing header to " << outputHeaderPath << "\n";
+    auto header = std::ofstream{outputHeaderPath};
+    if (!header.is_open()) {
+        throw ge::Exception{} <<
+            "cannot create output header: " << outputHeaderPath;
+    }
+    header <<
+        "#pragma once\n" <<
+        "\n" <<
+        "#include <ge/resources/ids.hpp>\n" <<
+        "\n" <<
+        "namespace re {\n" <<
+        "\n" <<
+        "namespace sprite {\n" <<
+        "\n";
+    for (const auto& p : spriteIdNames) {
+        header << "constexpr auto " << p.name <<
+            " = ge::SpriteId{" << p.id << "};\n";
+    }
+    header <<
+        "\n" <<
+        "} // namespace sprite\n" <<
+        "\n" <<
+        "namespace font {\n" <<
+        "\n";
+    for (const auto& p : fontIdNames) {
+        header << "constexpr auto " << p.name <<
+            " = ge::FontId{" << p.id << "};\n";
+    }
+    header <<
+        "\n" <<
+        "} // namespace font\n" <<
+        "\n" <<
+        "} // namespace re\n";
 }
 
 void unpack(const fs::path& dataFilePath)
@@ -75,7 +153,7 @@ int main(int argc, char* argv[])
     auto printUsage = [] {
         std::cout << R"_(
 Usage:
-    re pack RESOURCE_DESCRIPTION_FILE OUTPUT_FILE
+    re pack RESOURCE_DESCRIPTION_FILE OUTPUT_DATA_FILE OUTPUT_HEADER
     re unpack RESOURCE_DATA_FILE
         )_";
     };
@@ -88,13 +166,14 @@ Usage:
         auto command = std::string{argv[1]};
 
         if (command == "pack") {
-            if (argc != 4) {
+            if (argc != 5) {
                 printUsage();
                 return 1;
             }
             auto resourceDescriptionFilePath = fs::path{argv[2]};
-            auto outputFilePath = fs::path{argv[3]};
-            pack(resourceDescriptionFilePath, outputFilePath);
+            auto outputDataFilePath = fs::path{argv[3]};
+            auto outputHeaderPath = fs::path{argv[4]};
+            pack(resourceDescriptionFilePath, outputDataFilePath, outputHeaderPath);
         } else if (command == "unpack") {
             if (argc != 3) {
                 printUsage();

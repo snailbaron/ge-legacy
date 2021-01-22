@@ -1,29 +1,13 @@
 #pragma once
 
+#include "ge/resources/ids.hpp"
+
 #include "schema_generated.h"
 
 #include <filesystem>
 #include <vector>
 
 namespace ge {
-
-class SpriteId {
-public:
-    explicit SpriteId(size_t id) : _id(id) {}
-    operator size_t() const { return _id; }
-
-private:
-    size_t _id = 0;
-};
-
-class FontId {
-public:
-    explicit FontId(size_t id) : _id(id) {}
-    operator size_t() const { return _id; }
-
-private:
-    size_t _id = 0;
-};
 
 class ResourceWriter {
 public:

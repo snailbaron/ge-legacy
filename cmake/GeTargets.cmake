@@ -92,12 +92,12 @@ macro(ge_target)
             add_custom_command(
                 COMMENT "generate header from ${relative_source_fb_path}: ${relative_header_path}"
                 OUTPUT ${header_path}
-                DEPENDS ${source_fb_path}
                 COMMAND
                     $<TARGET_FILE:flatc>
                         --cpp
                         -o "${generated_headers_dir}/"
                         ${source_fb_path}
+                DEPENDS ${source_fb_path} flatc
             )
             add_custom_target(
                 ${target_name}
@@ -142,13 +142,15 @@ macro(ge_target)
 
         set(resource_data_path "${CMAKE_CURRENT_BINARY_DIR}/resources.data")
         set(pack_resources_target_name "${GE_TARGET_NAME}-pack-resources")
-        set(generated_header_path
-            "${CMAKE_CURRENT_BINARY_DIR}/generated_resource_header/resource_ids.hpp")
+        set(generated_header_dir "${CMAKE_CURRENT_BINARY_DIR}/generated_resource_header")
+        file(MAKE_DIRECTORY ${generated_header_dir})
+        set(generated_header_path "${generated_header_dir}/resource_ids.hpp")
         add_custom_command(
             COMMENT "pack resources for target '${GE_TARGET_NAME}'"
             OUTPUT ${resource_data_path}
             COMMAND $<TARGET_FILE:re>
-                pack "${resource_list_path}" "${resource_data_path}"
+                pack "${resource_list_path}" "${resource_data_path}" "${generated_header_path}"
+            DEPENDS re
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         )
         add_custom_target(
@@ -156,6 +158,7 @@ macro(ge_target)
             DEPENDS ${resource_data_path}
         )
 
-        add_dependencies(${GE_TARGET_NAME} ${pack_resources_target_name})
+        add_dependencies(${GE_TARGET_NAME} ${pack_resources_target_name} re)
+        target_include_directories(${GE_TARGET_NAME} PUBLIC ${generated_header_dir})
     endif()
 endmacro()

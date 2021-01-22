@@ -1,3 +1,5 @@
+#include "resource_ids.hpp"
+
 #include <ge.hpp>
 
 #include <algorithm>

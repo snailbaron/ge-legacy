@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ge/resources/ids.hpp"
+
 #include "ge/util.hpp"
 
 #include "schema_generated.h"
