@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#include <iostream>
+
 namespace ge {
 
 Texture::Texture(std::span<const std::byte> data)
@@ -25,6 +27,9 @@ Sprite::Sprite(const Texture& texture)
 
 void Sprite::addFrame(int x, int y, int w, int h)
 {
+    std::cerr <<
+        "addFrame: " << x << ", " << y << ", " << w << ", " << h << "\n";
+
     _frames.emplace_back(x, y, w, h);
     _sfmlSprite.setOrigin(w / 2, h / 2);
     _sfmlSprite.setTextureRect(_frames.at(_currentFrame));

@@ -30,20 +30,15 @@ void pack(
     const fs::path& outputDataFilePath,
     const fs::path& outputHeaderPath)
 {
-    struct FontIdNames {
-        ge::FontId id;
+    struct IdName {
+        size_t id;
         std::string name;
     };
 
-    struct SpriteIdNames {
-        ge::SpriteId id;
-        std::string name;
-    };
+    std::vector<IdName> fontIdNames;
+    std::vector<IdName> spriteIdNames;
 
-    std::vector<FontIdNames> fontIdNames;
-    std::vector<SpriteIdNames> spriteIdNames;
-
-    auto resourceWriter = ge::ResourceWriter{};
+    auto resourceWriter = gef::Writer{};
 
     auto input = std::ifstream{resourceDescriptionFilePath};
     for (auto record : ge::tyke::Scanner{input}) {
@@ -84,7 +79,7 @@ void pack(
     header <<
         "#pragma once\n" <<
         "\n" <<
-        "#include <ge/resources/ids.hpp>\n" <<
+        "#include <ge/client/resources.hpp>\n" <<
         "\n" <<
         "namespace re {\n" <<
         "\n" <<
@@ -114,15 +109,13 @@ void pack(
 void unpack(const fs::path& dataFilePath)
 {
     std::cerr << "creating resources\n";
-    auto resources = ge::Resources{dataFilePath};
+    auto resources = gef::Storage{dataFilePath};
 
-    for (size_t i = 0; i < resources.sheetCount(); i++) {
-        std::cerr << "unpacking sheet " << i << "\n";
-        auto sheet = resources.sheet(i);
-        sf::Image image;
-        image.loadFromMemory(sheet.data(), sheet.size());
-        image.saveToFile("sheet_" + std::to_string(i) + ".png");
-    }
+    std::cerr << "unpacking sheet\n";
+    auto sheet = resources.sheet();
+    sf::Image image;
+    image.loadFromMemory(sheet.data(), sheet.size());
+    image.saveToFile("sheet.png");
 
     for (size_t i = 0; i < resources.spriteCount(); i++) {
         std::cerr << "unpacking sprite " << i << "\n";

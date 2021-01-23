@@ -4,5 +4,6 @@ ge_target(
 
     SOURCES
         filemap.cpp
+        paths.cpp
         util.cpp
 )

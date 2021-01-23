@@ -1,7 +1,7 @@
 file_identifier "GERE";
-file_extension "ge";
+file_extension "gef";
 
-namespace ge.schema;
+namespace gef.schema;
 
 struct Frame {
   x:uint32;

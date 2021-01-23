@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ge/client/scene.hpp"
+#include "ge/client/actor.hpp"
 
 #include <SFML/Graphics.hpp>
 

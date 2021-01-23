@@ -1,8 +1,8 @@
 set(GE_LIBS
     client
     error
+    gef
     math
-    resources
     str
     time
     tyke

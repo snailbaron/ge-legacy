@@ -3,11 +3,10 @@
 #include <ge.hpp>
 
 #include <algorithm>
-#include <filesystem>
 #include <utility>
 #include <vector>
 
-namespace fs = std::filesystem;
+#include <iostream>
 
 struct Object {
     std::shared_ptr<ge::Circle> circle;
@@ -27,20 +26,9 @@ struct Game {
         shipCircle->color({.r = 255, .g = 255, .b = 255, .a = 255});
         shipCircle->pointCount(32);
 
-        const auto shipPath = fs::path{
-            "/home/snailbaron/code/ge/examples/01-starship/data/ship.png"};
-        auto shipFileMap = ge::ReadOnlyFileMap{shipPath};
-        shipTexture = ge::Texture{shipFileMap.content()};
-        shipSprite = spriteScene.spawn<ge::Sprite>(shipTexture);
+        shipSprite = spriteScene.spawn(re::sprite::ship);
         shipSprite->frameSeconds(0.5f);
-        shipSprite->addFrame(0, 0, 16, 16);
-        shipSprite->addFrame(16, 0, 16, 16);
         shipSprite->pixelSize(12.f * (1.f + 2 * shipRadius) / 1920);
-
-        const auto bulletPath = fs::path{
-            "/home/snailbaron/code/ge/examples/01-starship/data/rock.png"};
-        auto bulletFileMap = ge::ReadOnlyFileMap{bulletPath};
-        bulletTexture = ge::Texture{bulletFileMap.content()};
     }
 
     void update(float delta)
@@ -85,9 +73,6 @@ struct Game {
             enemy.sprite->y(enemy.y);
             if (enemy.y <= 10) {
             }
-            if (enemy.y <= 0) {
-                lost = true;
-            }
         }
 
         for (auto bullet = bullets.begin(); bullet != bullets.end(); ) {
@@ -126,8 +111,7 @@ struct Game {
             bullet.circle->color({255, 255, 255, 255});
             bullet.circle->radius(bulletRadius);
             bullet.circle->x(bullet.x);
-            bullet.sprite = spriteScene.spawn<ge::Sprite>(bulletTexture);
-            bullet.sprite->addFrame(0, 0, 8, 8);
+            bullet.sprite = spriteScene.spawn(re::sprite::rock);
             bullet.sprite->x(bullet.x);
             bullet.sprite->pixelSize(12.f * (1.f + 2 * shipRadius) / 1920);
             bullets.push_back(std::move(bullet));
@@ -147,9 +131,7 @@ struct Game {
             enemy.circle->radius(enemyRadius);
             enemy.circle->x(enemy.x);
             enemy.circle->y(enemy.y);
-            enemy.sprite = spriteScene.spawn<ge::Sprite>(shipTexture);
-            enemy.sprite->addFrame(0, 0, 16, 16);
-            enemy.sprite->addFrame(16, 0, 16, 16);
+            enemy.sprite = spriteScene.spawn(re::sprite::ship);
             enemy.sprite->x(enemy.x);
             enemy.sprite->y(enemy.y);
             enemy.sprite->pixelSize(12.f * (1.f + 2 * shipRadius) / 1920);
@@ -180,9 +162,6 @@ struct Game {
 
     int spawnPosition = 0;
 
-    ge::Texture shipTexture;
-    ge::Texture bulletTexture;
-
     float shipPosition = 0.f;
     float shipSpeed = 0.f;
     bool leftPressed = false;
@@ -197,7 +176,6 @@ struct Game {
     double timeToSpeedUpSpawn = 5.f;
     double spawnSpeedUpPeriodSeconds = 5.f;
     double spawnPeriodSpeedUpFactor = 0.95;
-    bool lost = false;
 };
 
 int main()
@@ -269,9 +247,6 @@ int main()
         if (auto framesPassed = timer(); framesPassed > 0) {
             for (auto i = framesPassed; i > 0; i--) {
                 game.update(timer.delta());
-            }
-            if (game.lost) {
-                client.kill();
             }
 
             client.update(framesPassed * timer.delta());

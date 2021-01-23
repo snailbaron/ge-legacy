@@ -1,4 +1,7 @@
 #include "ge/util/filemap.hpp"
+
+#include "ge/util/paths.hpp"
+
 #include "ge/error.hpp"
 
 #include <fcntl.h>
@@ -7,9 +10,13 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <iostream>
+
+namespace fs = std::filesystem;
+
 namespace ge {
 
-ReadOnlyFileMap::ReadOnlyFileMap(const std::filesystem::path& filePath)
+ReadOnlyFileMap::ReadOnlyFileMap(const fs::path& filePath)
 {
     map(filePath);
 }
@@ -19,8 +26,12 @@ ReadOnlyFileMap::~ReadOnlyFileMap()
     unmap();
 }
 
-void ReadOnlyFileMap::map(const std::filesystem::path& filePath)
+void ReadOnlyFileMap::map(const fs::path& filePath)
 {
+    if (!fs::is_regular_file(filePath)) {
+        throw Exception{} << "ReadOnlyFileMap: no such file: " << filePath;
+    }
+
     unmap();
 
     int fd = open(filePath.c_str(), O_RDONLY);

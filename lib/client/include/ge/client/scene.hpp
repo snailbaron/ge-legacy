@@ -1,5 +1,8 @@
 #pragma once
 
+#include "ge/client/actor.hpp"
+#include "ge/client/resources.hpp"
+
 #include "ge/util.hpp"
 
 #include <SFML/Graphics.hpp>
@@ -9,20 +12,17 @@
 
 namespace ge {
 
-class Actor {
-public:
-    virtual ~Actor() {}
-    virtual void update(double /*delta*/) {}
-    virtual void draw(sf::RenderTarget& target) const = 0;
-};
-
 class Scene {
 public:
+    void attach(const std::shared_ptr<Actor>& actor);
+
     template <class T, class... Args>
     std::shared_ptr<T> spawn(Args&&... args)
     {
         return _actors.spawn<T>(std::forward<Args>(args)...);
     }
+
+    std::shared_ptr<Sprite> spawn(SpriteId spriteId);
 
     bool visible() const;
     void visible(bool value);

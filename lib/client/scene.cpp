@@ -2,6 +2,18 @@
 
 namespace ge {
 
+void Scene::attach(const std::shared_ptr<Actor>& actor)
+{
+    _actors.attach(actor);
+}
+
+std::shared_ptr<Sprite> Scene::spawn(SpriteId spriteId)
+{
+    auto sprite = load(spriteId);
+    _actors.attach(sprite);
+    return sprite;
+}
+
 bool Scene::visible() const
 {
     return _visible;

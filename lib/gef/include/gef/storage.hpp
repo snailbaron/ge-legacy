@@ -1,7 +1,5 @@
 #pragma once
 
-#include "ge/resources/ids.hpp"
-
 #include "ge/util.hpp"
 
 #include "schema_generated.h"
@@ -11,22 +9,22 @@
 #include <filesystem>
 #include <span>
 
-namespace ge {
+namespace gef {
 
-class Frame {
+class Sprite {
 public:
-    explicit Frame(const schema::Frame* frame);
+    class Frame {
+    public:
+        explicit Frame(const schema::Frame* frame);
 
-    int x() const;
-    int y() const;
+        int x() const;
+        int y() const;
 
-private:
-    const schema::Frame* _frame = nullptr;
-};
+    private:
+        const schema::Frame* _frame = nullptr;
+    };
 
-class SpriteData {
-public:
-    explicit SpriteData(const schema::Sprite* sprite);
+    explicit Sprite(const schema::Sprite* sprite);
 
     size_t sheetIndex() const;
     int frameMs() const;
@@ -39,22 +37,21 @@ private:
     const schema::Sprite* _sprite = nullptr;
 };
 
-class Resources {
+class Storage {
 public:
-    explicit Resources(const std::filesystem::path& resourceFilePath);
+    explicit Storage(const std::filesystem::path& resourceFilePath);
 
-    size_t sheetCount() const;
-    std::span<const std::byte> sheet(size_t index) const;
+    std::span<const std::byte> sheet() const;
 
     size_t spriteCount() const;
-    SpriteData sprite(size_t index) const;
+    Sprite sprite(size_t index) const;
 
     size_t fontCount() const;
     std::span<const std::byte> font(size_t index) const;
 
 private:
-    ReadOnlyFileMap _data;
+    ge::ReadOnlyFileMap _data;
     const schema::Resources* _root = nullptr;
 };
 
-} // namespace ge
+} // namespace gef

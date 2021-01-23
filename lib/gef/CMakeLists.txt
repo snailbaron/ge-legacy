@@ -7,6 +7,6 @@ ge_target(
         schema.fbs
 
     SOURCES
-        resource_writer.cpp
-        resources.cpp
+        storage.cpp
+        writer.cpp
 )

@@ -1,21 +1,19 @@
 #pragma once
 
-#include "ge/resources/ids.hpp"
-
 #include "schema_generated.h"
 
 #include <filesystem>
 #include <vector>
 
-namespace ge {
+namespace gef {
 
-class ResourceWriter {
+class Writer {
 public:
-    SpriteId addSprite(
+    size_t addSprite(
         const std::filesystem::path& path,
         int frameCount = 1,
         int frameMs = 250);
-    FontId addFont(const std::filesystem::path& path);
+    size_t addFont(const std::filesystem::path& path);
     void write(std::ostream& output);
     void write(const std::filesystem::path& outputFilePath);
 
@@ -35,4 +33,4 @@ private:
     int totalSpriteHeight = 0;
 };
 
-} // namespace ge
+} // namespace gef

@@ -1,11 +1,13 @@
 ge_target(
     DEPENDS
-        sfml-graphics
+        gef
         util
+        sfml-graphics
 
     SOURCES
         client.cpp
         conversion.cpp
+        resources.cpp
         scene.cpp
         shapes.cpp
         sprite.cpp

@@ -134,6 +134,12 @@ public:
         return {};
     }
 
+    template <class U> requires std::is_convertible_v<U*, T*>
+    void attach(const std::shared_ptr<U>& p)
+    {
+        _ptrs.push_back(p);
+    }
+
     template <class Target, class... Args>
     std::shared_ptr<Target> spawn(Args&&... args)
     {
