@@ -42,11 +42,14 @@ void pack(
 
     auto input = std::ifstream{resourceDescriptionFilePath};
     for (auto record : ge::tyke::Scanner{input}) {
-        std::cerr << "record: " << record << "\n";
+        auto path = record["path"].as<fs::path>();
+        if (!fs::is_regular_file(path)) {
+            throw ge::Exception{} << "resource file does not exist: " << path;
+        }
 
         auto name = record["id"].optional<std::string>();
         if (name.empty()) {
-            name = record["path"].as<fs::path>().stem().string();
+            name = path.stem().string();
         }
         if (!isValidResourceId(name)) {
             throw ge::Exception{} << "invalid name '" << name <<
@@ -67,10 +70,8 @@ void pack(
         }
     }
 
-    std::cerr << "writing output file to " << outputDataFilePath << "\n";
     resourceWriter.write(outputDataFilePath);
 
-    std::cerr << "writing header to " << outputHeaderPath << "\n";
     auto header = std::ofstream{outputHeaderPath};
     if (!header.is_open()) {
         throw ge::Exception{} <<
@@ -139,10 +140,6 @@ void unpack(const fs::path& dataFilePath)
 
 int main(int argc, char* argv[])
 {
-    for (int i = 0; i < argc; i++) {
-        std::cerr << "arg: '" << argv[i] << "'\n";
-    }
-
     auto printUsage = [] {
         std::cout << R"_(
 Usage:
@@ -179,7 +176,7 @@ Usage:
             return 1;
         }
     } catch (const std::exception& e) {
-        std::cerr << e.what() << "\n";
+        std::cerr << char(27) << "[31;1m[GE] " << e.what() << char(27) << "[m\n";
         return 1;
     }
 }

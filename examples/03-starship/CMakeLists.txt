@@ -7,8 +7,8 @@ ge_target(
 
     RESOURCES
         SPRITE data/rock.png
-        SPRITE data/ship.png FRAMES 2
-        FONT data/OpenSans-Regular.ttf ID OpenSans
+        SPRITE data/ship.png frames=2
+        FONT data/OpenSans-Regular.ttf id=OpenSans
 
     SOURCES
         main.cpp

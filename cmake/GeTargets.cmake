@@ -110,35 +110,51 @@ macro(ge_target)
 
     if(GE_TARGET_RESOURCES)
         set(resource_list_path "${CMAKE_CURRENT_BINARY_DIR}/resource.list")
-        file(WRITE ${resource_list_path} "")
+        if(NOT EXISTS ${resource_list_path})
+            file(WRITE ${resource_list_path} "")
+        endif()
+
+        set(new_resource_list_path "${CMAKE_CURRENT_BINARY_DIR}/resource.list.new")
+        file(WRITE ${new_resource_list_path} "")
 
         set(known_resource_types SPRITE FONT)
         set(resource_paths "")
         list(POP_FRONT GE_TARGET_RESOURCES resource_type)
         while(resource_type)
-            if (NOT resource_type IN_LIST known_resource_types)
+            if(NOT resource_type IN_LIST known_resource_types)
                 ge_error("ge target '${GE_TARGET_NAME}': unknown resource type '${resource_type}'")
             endif()
 
             list(POP_FRONT GE_TARGET_RESOURCES resource_path)
-            # TODO: check resource path
+            if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${resource_path}")
+                ge_error("ge target '${GE_TARGET_NAME}': resource file does not exist: '${resource_path}'")
+            endif()
             list(APPEND resource_paths ${resource_path})
 
             string(TOLOWER ${resource_type} resource_type_lc)
             set(resource_description "[${resource_type_lc}] path=${resource_path};")
 
-            list(POP_FRONT GE_TARGET_RESOURCES param_name)
-            while(param_name AND NOT param_name IN_LIST known_resource_types)
-                list(POP_FRONT GE_TARGET_RESOURCES param_value)
-                string(TOLOWER ${param_name} param_name_lc)
-                string(APPEND resource_description " ${param_name_lc}=${param_value};")
-                message(STATUS "adding to resource description: ${param_name_lc}=${param_value};")
-                list(POP_FRONT GE_TARGET_RESOURCES param_name)
+            while(TRUE)
+                list(POP_FRONT GE_TARGET_RESOURCES key_value)
+                string(FIND "${key_value}" "=" equal_sign_position)
+                if(equal_sign_position EQUAL -1)
+                    set(resource_type ${key_value})
+                    break()
+                endif()
+                math(EXPR value_position "${equal_sign_position} + 1")
+                string(SUBSTRING ${key_value} 0 ${equal_sign_position} key)
+                string(SUBSTRING ${key_value} ${value_position} -1 value)
+                string(APPEND resource_description " ${key}=${value};")
             endwhile()
-            set(resource_type ${param_name})
-
-            file(APPEND ${resource_list_path} "${resource_description}\n")
+            message(STATUS "resource description: ${resource_description}")
+            file(APPEND ${new_resource_list_path} "${resource_description}\n")
         endwhile()
+
+        file(MD5 ${resource_list_path} resource_list_hash)
+        file(MD5 ${new_resource_list_path} new_resource_list_hash)
+        if(NOT resource_list_hash STREQUAL new_resource_list_hash)
+            execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${new_resource_list_path} ${resource_list_path})
+        endif()
 
         set(resource_data_path "${CMAKE_CURRENT_BINARY_DIR}/resources.data")
         set(pack_resources_target_name "${GE_TARGET_NAME}-pack-resources")
@@ -150,12 +166,12 @@ macro(ge_target)
             OUTPUT ${resource_data_path}
             COMMAND $<TARGET_FILE:re>
                 pack "${resource_list_path}" "${resource_data_path}" "${generated_header_path}"
-            DEPENDS re
+            DEPENDS re ${resource_list_path} ${resource_paths}
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         )
         add_custom_target(
             ${pack_resources_target_name}
-            DEPENDS ${resource_data_path}
+            DEPENDS ${resource_data_path} ${generated_header_path}
         )
 
         add_dependencies(${GE_TARGET_NAME} ${pack_resources_target_name} re)

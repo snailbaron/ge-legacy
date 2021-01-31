@@ -14,7 +14,6 @@ namespace gef {
 size_t Writer::addSprite(
     const fs::path& path, int frameCount, int frameMs)
 {
-    std::cerr << "adding sprite at " << path << "\n";
     _spriteFilesInfo.push_back({
         .path = path,
         .frameCount = frameCount,
@@ -25,7 +24,6 @@ size_t Writer::addSprite(
 
 size_t Writer::addFont(const fs::path& path)
 {
-    std::cerr << "adding font: " << path << "\n";
     auto fontBytes = ge::slurp(path);
     auto fontBytesVector = _builder.CreateVector<unsigned char>(fontBytes);
     auto fontOffset = schema::CreateFont(_builder, fontBytesVector);
@@ -62,16 +60,10 @@ void Writer::write(std::ostream& output)
 
             auto frameWidth = sprite.getSize().x / info.frameCount;
 
-            std::cerr << "sprite " << i << ":" <<
-                " width=" << frameWidth <<
-                " height=" << sprite.getSize().y;
-
             std::vector<schema::Frame> frames;
             for (unsigned x = 0; x < sprite.getSize().x; x += frameWidth) {
                 frames.emplace_back(x, y);
-                std::cerr << " (" << x << ", " << y << ")";
             }
-            std::cerr << "\n";
             auto framesVector = _builder.CreateVectorOfStructs(frames);
 
             auto spriteBuilder = schema::SpriteBuilder{_builder};
