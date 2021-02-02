@@ -1,0 +1,1 @@
+ecosnail_example(basic)

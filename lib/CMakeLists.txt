@@ -4,6 +4,7 @@ set(GE_LIBS
     gef
     math
     str
+    thing
     time
     tyke
     ui
