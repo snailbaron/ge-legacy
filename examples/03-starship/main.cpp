@@ -181,7 +181,7 @@ struct Game {
 int main()
 {
     auto client = ge::Client{};
-    client.config.windowTitle = "Ge geometry example";
+    client.windowTitle = "Ge geometry example";
     client.create();
 
     client.sceneNumber(2);

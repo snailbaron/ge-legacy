@@ -16,10 +16,6 @@ namespace ge {
 
 class Client {
 public:
-    struct Config {
-        std::string windowTitle = "ge";
-    };
-
     bool isAlive() const;
     void kill();
     int width() const;
@@ -38,7 +34,7 @@ public:
     Scene& scene(int index = 0);
     void sceneNumber(int number);
 
-    Config config;
+    std::string windowTitle;
 
 private:
     sf::RenderWindow _window;    

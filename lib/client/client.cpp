@@ -6,6 +6,8 @@
 #include <iterator>
 #include <utility>
 
+#include <iostream>
+
 namespace ge {
 
 namespace {
@@ -19,7 +21,7 @@ void Client::create()
     auto contextSettings = sf::ContextSettings{};
     contextSettings.antialiasingLevel = 8;
     _window.create(
-        sf::VideoMode::getDesktopMode(), config.windowTitle, sf::Style::None, contextSettings);
+        sf::VideoMode::getDesktopMode(), windowTitle, sf::Style::Fullscreen, contextSettings);
     _window.setPosition({0, 0});
     _window.setKeyRepeatEnabled(false);
 }
@@ -54,7 +56,7 @@ void Client::processInput()
         }
 
         if (event.type == sf::Event::KeyPressed &&
-                event.key.code == sf::Keyboard::Escape) {
+                event.key.alt && event.key.code == sf::Keyboard::F4) {
             _window.close();
             continue;
         }

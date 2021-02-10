@@ -48,7 +48,7 @@ public:
     Component& add(Entity entity, Args&&... args)
     {
         GE_ASSERT(!_indexByEntity.contains(entity));
-        _indexByEntity.push_back(entities.size());
+        _indexByEntity[entity] = _entities.size();
         _entities.push_back(entity);
         _components.emplace_back(std::forward<Args>(args)...);
         return _components.back();
@@ -58,7 +58,7 @@ public:
     {
         GE_ASSERT(_indexByEntity.contains(entity));
         size_t size = _entities.size();
-        size_t index = _indexByEntity(entity);
+        size_t index = _indexByEntity.at(entity);
         auto lastEntity = _entities.back();
         std::swap(_entities.at(index), _entities.back());
         std::swap(_components.at(index), _components.back());
@@ -125,16 +125,34 @@ public:
 
 private:
     template <class Component>
-    ComponentMap<Component> findComponentMap()
+    ComponentMap<Component>& findComponentMap()
     {
-        return _components.at(typeid(Component))
+        return std::any_cast<ComponentMap<Component>&>(
+            _components.at(typeid(Component)));
+    }
+
+    template <class Component>
+    const ComponentMap<Component>& findComponentMap() const
+    {
+        return std::any_cast<const ComponentMap<Component>&>(
+            _components.at(typeid(Component)));
+    }
+
+    template <class Component>
+    ComponentMap<Component>& createOrFindComponentMap()
+    {
+        if (auto found = _components.find(typeid(Component));
+                found != _components.end()) {
+            return std::any_cast<ComponentMap<Component>>(found->second);
+        } else {
+            auto [it, inserted] = _components.insert(
+                {typeid(Component), std::any{ComponentMap<Component>{}}});
+            return std::any_cast<ComponentMap<Component>>(it->second);
+        }
     }
 
     EntityPool _entityPool;
-    std::map<std::type_index, std::unique_ptr<AbstractComponentMap>> _components;
+    std::map<std::type_index, std::any> _components;
 };
-
-template <class Component>
-EntityManager::ComponentMap<Component> EntityManager::emptyComponentMap;
 
 } // namespace ge
